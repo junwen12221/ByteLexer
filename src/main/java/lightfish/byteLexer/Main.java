@@ -13,14 +13,25 @@ import java.util.stream.Collectors;
  * Created by Administrator on 2017/4/8 0008.
  */
 public class Main {
+     static String projectPath;
+    static {
+        try {
+            projectPath = "D:/byteLexer";
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+
+
     public static void main(String[] args) throws Exception {
-        String generated = "D:\\byteLexer\\src\\test\\java\\lightfish\\byteLexer\\";
+        String generated = projectPath + "/src/test/java/lightfish/byteLexer/";
         genFile(generated);
     }
 
     static void genFile(String generatedPath) throws Exception {
-        String name = "D:\\byteLexer\\src\\main\\java\\lightfish\\byteLexer\\Lexer.java";
-        List<String> read = Files.readAllLines(Paths.get("D:\\mydoc\\Tencent Files\\294712221\\FileRecv\\gen\\sql_tokens.txt")).stream().filter((i) -> !"".equals(i)).collect(Collectors.toList());
+        String name = projectPath+"/src/main/java/lightfish/byteLexer/Lexer.java";
+        List<String> read = Files.readAllLines(Paths.get(projectPath+"/src/main/resources/sql_tokens.txt")).stream().filter((i) -> !"".equals(i)).collect(Collectors.toList());
         Map<Character, List<String>> source = read.stream().map((i) -> i.trim()).filter((i) -> !"".equals(i)).filter((c) -> Character.isLetter(c.charAt(0))).distinct().collect(Collectors.groupingBy((k) -> k.charAt(0)));
         TrieTree trieTree = new TrieTree();
         source.values().stream().flatMap((s) -> s.stream()).forEach((i) -> trieTree.insert(i));

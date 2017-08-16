@@ -174,7 +174,7 @@ public class TrieTree {
         Map<Boolean, List<Entry<String, String>>> data = kv.stream().collect(Collectors.partitioningBy((i) -> priority.containsKey(i)));
         List<Entry<String, String>> main = data.get(Boolean.TRUE);
         List<Entry<String, String>> other = data.get(Boolean.FALSE);
-        Path basePath = Paths.get("D:\\byteLexer\\src\\test\\java\\lightfish\\byteLexer");
+        Path basePath = Paths.get(Main.projectPath+"/src/test/java/lightfish/byteLexer");
         Iterator<Entry<String, String>> iterator = kv.iterator();
         while (iterator.hasNext()) {
             Entry<String, String> o = iterator.next();
@@ -222,12 +222,7 @@ public class TrieTree {
         insert(this.root, word);
     }
 
-    /**
-     * 插入单词
-     *
-     * @param root
-     * @param word
-     */
+
     public void insert(Node root, String word) {
         word = word.toLowerCase();
         char[] chars = word.toCharArray();
@@ -253,13 +248,6 @@ public class TrieTree {
         }
 
     }
-
-    /**
-     * 获取以prefixStr为前缀的字符串
-     *
-     * @param prefixStr
-     * @return
-     */
     private HashMap<String, Integer> getPrefixString(Node root, String prefixStr) {
         prefixStr = prefixStr.toLowerCase();
         HashMap<String, Integer> map = new HashMap<String, Integer>();
@@ -404,29 +392,6 @@ public class TrieTree {
 
     public boolean searchWord(String word) {
         return searchWord(root, word);
-
-    }
-
-    public static void main(String[] args) {
-        TrieTree trieTree = new TrieTree();
-        trieTree.insert("gab");
-        trieTree.insert("gb");
-        trieTree.insert("gb");
-        trieTree.insert("gbc");
-        trieTree.insert("gbc");
-        trieTree.insert("go");
-        trieTree.insert("go");
-        trieTree.insert("goa");
-        for (Entry<String, Integer> entry : trieTree.getPrefixString("g")
-                .entrySet()) {
-            System.out.println(entry.getKey() + " : " + entry.getValue());
-        }
-        trieTree.delete("gb");
-        System.out.println("***************");
-        for (Entry<String, Integer> entry : trieTree.getPrefixString("g")
-                .entrySet()) {
-            System.out.println(entry.getKey() + " : " + entry.getValue());
-        }
 
     }
 }
