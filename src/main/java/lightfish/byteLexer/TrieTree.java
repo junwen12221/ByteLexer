@@ -94,7 +94,7 @@ public class TrieTree {
                     char c = string.length() == 0 ? 0 : string.charAt(0);
                     String ret;
                     if (('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z')) {
-                        ret = "t=H." + string.toUpperCase() + ";++x;return x;";
+                        ret = "c=cc(x);if (isBlank(c)){t=H." + string.toUpperCase() + ";return x;}";
                     } else {
                         ret = "++x;return x;";
                     }

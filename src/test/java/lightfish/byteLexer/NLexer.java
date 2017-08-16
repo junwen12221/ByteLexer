@@ -1,18 +1,9 @@
 package lightfish.byteLexer;
 
 
-
-
 import java.nio.charset.StandardCharsets;
 
-public class NLexer {
-    public boolean hasMore;
-    byte[] reader;
-    int start = 0;
-    int size;
-    int x = 0;
-    long t;
-
+public class NLexer extends P{
     public NLexer() {
 
 
@@ -30,9 +21,14 @@ public class NLexer {
     }
 
     public static void main(String[] args) throws Exception {
-        long o = H.ACCESSIBLE;
-        String name="select t2.product_id,t2.PRODUCT_NAME,t2.product_status,t2.suggested_price,t3.file_path,t.sum,t4.min_price from v_product_num_all t join product t2 on t.product_id = t2.PRODUCT_ID join v_product_img t3 on t2.ATTACH_ID = t3.ATTACH_ROOT_ID join v_product_price t4 on t.product_id = t4.product_id where t2.CUST_ID = '100000000009818' ORDER BY t.sum desc LIMIT 3";
-        NLexer lexer = new NLexer("t.".toLowerCase().getBytes(StandardCharsets.US_ASCII));
+        NLexer lexer = new NLexer("select t2.product_id,t2.PRODUCT_NAME,t2.product_status,t2.suggested_price,t3.file_path,t.sum,t4.min_price from v_product_num_all t join product t2 on t.product_id = t2.PRODUCT_ID join v_product_img t3 on t2.ATTACH_ID = t3.ATTACH_ROOT_ID join v_product_price t4 on t.product_id = t4.product_id where t2.CUST_ID = '100000000009818' ORDER BY t.sum desc LIMIT 3".toLowerCase().getBytes(StandardCharsets.US_ASCII));
+        while (lexer.hasMore) {
+            lexer.match();
+            System.out.println(lexer.readString());
+            System.out.println(lexer.getTokenType());
+        }
+        System.out.println("=>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+        lexer.init("SELECT a fROm ab             , ee.ff AS f,(SELECT a FROM `schema_bb`.`tbl_bb`,(SELECT a FROM ccc AS c, `dddd`));".toLowerCase().getBytes(StandardCharsets.US_ASCII));
         while (lexer.hasMore) {
             lexer.match();
             System.out.println(lexer.readString());
@@ -51,107 +47,8 @@ public class NLexer {
         hasMore = true;
         reader = r;
         size = r.length;
+        x=0;
     }
-
-    public String readString() {
-        return new String(this.reader, start, x - start);
-    }
-
-    int cc(int x) {
-        return (int) this.reader[++this.x];
-    }
-
-    final boolean nextIsBlank() {
-        return (reader[++x] == ' ' || reader[x] == '\t' || reader[x] == '\r' || reader[x] == '\n');
-    }
-
-    final boolean is(int c) {
-        boolean res = reader[x++] == c;
-        return res;
-    }
-
-    final void id() {
-        char c;
-        if ((x + 1) > size) {
-            hasMore = false;
-            return;
-        }
-        c = (char) reader[x];
-        if (('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z') || ('0' <= c && c <= '9')) {
-            while (!(c == ' ' || c == '\n' || c == '\t' || c == '.' || c == ',') && x < size) {
-                if (c != '.' && c != ',') {
-                    ++x;
-                    c = (char) reader[x];
-                } else {
-                    x -= 2;
-                    break;
-                }
-            }
-            t = H.IDENTIFIED;
-        } else if (c == '`') {
-            while (!(c == '`') && x < size) {
-                ++x;
-                c = (char) reader[x];
-            }
-            ++x;
-            t = H.IDENTIFIED;
-        } else if (c == '\'') {
-            while (!(c == '\'') && x < size) {
-                ++x;
-                c = (char) reader[x];
-            }
-            ++x;
-            t = H.IDENTIFIED;
-        } else if (c == '"') {
-            while (x < size) {
-                if (c == '"' && (reader[x - 1] != '\\')) {
-
-                } else {
-                    ++x;
-                    c = (char) reader[x];
-                }
-            }
-            ++x;
-            t = H.IDENTIFIED;
-        } else {
-            ++x;
-            t = H.IDENTIFIED;
-        }
-    }
-
-
-    final void findNextToken() {
-        if (x + 1 >= size) {
-            hasMore = false;
-            return;
-        } else {
-            ++x;
-            int c = reader[x];
-            if (c == ' ' || c == '\t' || c == '\n') {
-                for (; x < size; x++) {
-                    c = reader[x];
-                    if (c == ' ' || c == '\t' || c == '\n') {
-                        continue;
-                    }
-                }
-            } else {
-                return;
-            }
-        }
-
-    }
-
-    void jumpPassSpace() {
-        while (hasMore = x < size) {
-            int c = reader[x];
-            if (c == ' ' || c == '\t' || c == '\n') {
-                ++x;
-            } else {
-                break;
-            }
-        }
-    }
-
     AParseNode aparsenode =new AParseNode();
 BParseNode bparsenode =new BParseNode();
 CParseNode cparsenode =new CParseNode();

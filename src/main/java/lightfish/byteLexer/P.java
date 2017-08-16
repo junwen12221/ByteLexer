@@ -4,13 +4,23 @@ package lightfish.byteLexer;
 /**
  * Created by jamie on 2017/8/16.
  */
-public   class P {
+public class P {
     public boolean hasMore;
     public byte[] reader;
     public int start = 0;
     public int size;
     public int x = 0;
     public long t;
+
+    /**
+     * todo 性能优化
+     *
+     * @param b
+     * @return
+     */
+    static boolean isSeparator(byte b) {
+       return (!Character.isLetter(b)&&!Character.isDigit(b)&&b!='_');
+    }
 
     /**
      * 分模块
@@ -22,12 +32,13 @@ public   class P {
     public long getTokenType() {
         return t;
     }
-    public void init(byte[] r,int index) {
+
+    public void init(byte[] r, int index) {
         hasMore = true;
         reader = r;
         size = r.length;
-        x=index;
-        t=0;
+        x = index;
+        t = 0;
     }
 
 
@@ -43,40 +54,48 @@ public   class P {
         return (reader[++x] == ' ' || reader[x] == '\t' || reader[x] == '\r' || reader[x] == '\n');
     }
 
-    final boolean is(int c) {
-        boolean res = reader[x++] == c;
-        return res;
+    //    final static boolean isBlank(int b) {
+//        return (b== ' ' || b== '\t' || b== '\r' || b== '\n');
+//    }
+//    final static boolean isBlank(byte b) {
+//        return (b== ' ' || b== '\t' || b== '\r' || b== '\n');
+//    }
+    final static boolean isBlank(int b) {
+        return (b == ' ' || b == '\t' || b == '\r' || b == '\n');
     }
+//    final boolean is(int c) {
+//        boolean res = reader[x++] == c;
+//        return res;
+//    }
+
+
     public final void endId() {
-        char c;
+        byte c;
         if ((x + 1) >= size) {
             hasMore = false;
-            return;
         }
-        c = (char) reader[x];
-      if (Character.isWhitespace(c)){
-          return;
-      }else {
-          id();
-      }
+        c = reader[x];
+        if (isBlank(c) || c == '.' || c == ',') {
+            return;
+        } else {
+            id();
+        }
     }
 
-    public final void id() {
+    final void id() {
         char c;
         if ((x + 1) >= size) {
             hasMore = false;
-            return;
+            ;
         }
         c = (char) reader[x];
-        if (('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z') || ('0' <= c && c <= '9')||c=='_') {
-            while (!(c == ' ' || c == '\n' || c == '\t' || c == '.' || c == ',') && x < size) {
-                if (c != '.' && c != ',') {
-                    ++x;
-                    c = (char) reader[x];
-                } else {
-                    x -= 2;
-                    break;
-                }
+        if (('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z') || ('0' <= c && c <= '9') || c == '_') {
+            while ((c != ' ' && c != '\n' && c != '\t' && c != '.' && c != ',' && c != '\'' && c != '`') && x < size) {
+                c = (char) reader[x];
+                ++x;
+            }
+            if (c == '.' || c == ',' || c == '\'' || c == '`') {
+                --x;
             }
             t = H.IDENTIFIED;
         } else if (c == '`') {
