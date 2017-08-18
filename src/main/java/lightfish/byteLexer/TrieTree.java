@@ -68,16 +68,24 @@ public class TrieTree {
             return (char) (i);
         }
 
-
-        public String toString(String string) {
+        /**
+         * 生成ParseNode的各解析子路径的代码
+         * @param string
+         * @return
+         */
+        public String toNodeChildCode(String string) {
             List<Integer> list = getNodes();
             int size = list.size();
+            /**
+             * 根据同一个位置需要匹配的字符数量来决定生成if还是switch,当是标识符最后一个字符时,也是if
+             */
             switch (size) {
                 case 0:
                     char c = string.length() == 0 ? 0 : string.charAt(0);
                     String ret;
+                    //最后的匹配的if只会是剩下一个,不会是两个,如果后面的字符是空白符号,那就是匹配上标志符,否则就不是
                     if (('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z')) {
-                        ret = "c=cc(x);if (isBlank(c)){t=H." + string.toUpperCase() + ";return x;}";
+                        ret = "if(x<size){c=cc(x);if (isBlank(c)){t=H." + string.toUpperCase() + ";return x;}}else{return x;}";
                     } else {
                         ret = "++x;return x;";
                     }
@@ -86,26 +94,32 @@ public class TrieTree {
                 case 2:
                 case 3:
                 case 4: {
+                    //生成switch
                     Map<String, String> res = new HashMap<>(list.size());
                     for (Integer i : list) {
                         String str = String.valueOf("'" + (char) (i.intValue()) + "'");
-                        res.put(str, childNodes[i].toString(string + String.valueOf((char) (i.intValue()))));
+                        res.put(str, childNodes[i].toNodeChildCode(string + String.valueOf((char) (i.intValue()))));
                     }
-                    return "{c" + "=cc(x);" + res.entrySet().stream()
+                    return "if(x<size){c" + "=cc(x);" + res.entrySet().stream()
                             .map((entry) -> "if(c==" + entry.getKey() + "){" + entry.getValue() + "}")
-                            .collect(Collectors.joining()).concat(this.isLeaf ? "return x;}" : "endId();return x;}");
+                            .collect(Collectors.joining()).concat(this.isLeaf ? "return x;}return x;" : "endId();return x;}return x;");
                 }
                 default:
                     Map<String, String> res = new HashMap<>(list.size());
                     for (Integer i : list) {
                         String str = String.valueOf("'" + (char) (i.intValue()) + "'");
-                        res.put(str, childNodes[i].toString(string + String.valueOf((char) (i.intValue()))));
+                        res.put(str, childNodes[i].toNodeChildCode(string + String.valueOf((char) (i.intValue()))));
                     }
                     return genSwitchAdd1(res);
             }
         }
 
-        public String toStr() throws IOException {
+        /**
+         * 生成各AParseNode的顶层代码
+         * @return
+         * @throws IOException
+         */
+        public String toNodeCode() throws IOException {
             List<Integer> list = getNodes();
             int size = list.size();
             switch (size) {
@@ -118,7 +132,7 @@ public class TrieTree {
                     Map<String, String> res = new HashMap<>(list.size());
                     for (Integer i : list) {
                         String str = String.valueOf("'" + (char) (i.intValue()) + "'");
-                        res.put(str, childNodes[i].toString(String.valueOf((char) (i.intValue()))));
+                        res.put(str, childNodes[i].toNodeChildCode(String.valueOf((char) (i.intValue()))));
                     }
                     return "{c=reader[x];" + res.entrySet().stream().map((entry) -> "if(c" + "==" + entry.getKey() + "){" + entry.getValue() + "" + "}").collect(Collectors.joining()).concat("endId();return x;}");
                 }
@@ -126,10 +140,9 @@ public class TrieTree {
                     Map<String, String> res = new HashMap<>(list.size());
                     for (Integer i : list) {
                         String str = String.valueOf("" + (char) (i.intValue()) + "");
-                        res.put(str, childNodes[i].toString(String.valueOf((char) (i.intValue()))));
+                        res.put(str, childNodes[i].toNodeChildCode(String.valueOf((char) (i.intValue()))));
                     }
                     String res1 = genSwitch(res);
-                    System.out.println(res1);
                     return res1;
             }
         }
@@ -142,7 +155,7 @@ public class TrieTree {
     }
 
     /**
-     * 顶部switch
+     * 顶部switch,生成各种字符节点例如AParseNode和顶层的Lexer
      *
      * @param map
      * @return
@@ -253,6 +266,7 @@ public class TrieTree {
 
     /**
      * 深度优先遍历
+     * 驱动整个生成过程
      *
      * @param root :根节点
      * @param map
@@ -359,10 +373,14 @@ public class TrieTree {
 
     }
 
+    /**
+     * 最顶层的生成字符串
+     * @return
+     */
     @Override
     public String toString() {
         try {
-            return "public void match(){jumpPassSpace();this.start=x;int c=0;if (!hasMore)return;\n" + this.root.toStr() + "\n}";
+            return "public void match(){jumpPassSpace();this.start=x;int c=0;if (!hasMore)return;\n" + this.root.toNodeCode() + "\n}";
         } catch (Exception e) {
             e.printStackTrace();
         }

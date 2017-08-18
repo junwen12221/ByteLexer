@@ -1,2 +1,0 @@
-package lightfish.byteLexer;
- class YParseNode extends P{  public  int parse(){int c;{c=cc(x);if(c=='e'){{c=cc(x);if(c=='a'){{c=cc(x);if(c=='r'){{c=cc(x);if(c=='_'){{c=cc(x);if(c=='m'){{c=cc(x);if(c=='o'){{c=cc(x);if(c=='n'){{c=cc(x);if(c=='t'){{c=cc(x);if(c=='h'){c=cc(x);if (isBlank(c)){t=H.YEAR_MONTH;return x;}}endId();return x;}}endId();return x;}}endId();return x;}}endId();return x;}}endId();return x;}}return x;}}endId();return x;}}endId();return x;}}endId();return x;}}}

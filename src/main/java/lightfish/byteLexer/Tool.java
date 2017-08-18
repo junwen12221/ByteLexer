@@ -1,5 +1,6 @@
 package lightfish.byteLexer;
 
+import java.util.EnumMap;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
@@ -9,6 +10,7 @@ import java.util.stream.Stream;
  * Created by Administrator on 2017/4/6 0006.
  */
 public class Tool {
+
     public static void main(String[] args) {
         System.out.println(genMethod("test",genIfAnd("main();", "main2();", "a==b")));
     }

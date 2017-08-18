@@ -14,7 +14,7 @@ public class P {
 
     /**
      * todo 性能优化
-     *
+     *非标识符部分
      * @param b
      * @return
      */
@@ -36,16 +36,40 @@ public class P {
     public void init(byte[] r, int index) {
         hasMore = true;
         reader = r;
-        size = r.length;
+        size = r.length - 1;
         x = index;
         t = 0;
     }
 
-
+    /**
+     * 把标识符变成字符串
+     * @return
+     */
     public String readString() {
         return new String(this.reader, start, x - start);
     }
 
+    /**
+     *todo 性能优化
+     * @return
+     */
+    public int readInt() {
+        return Integer.parseInt(new String(this.reader, start, x - start));
+    }
+
+    /**
+     * todo 性能优化
+     * @return
+     */
+    public double readDouble() {
+        return Double.parseDouble(new String(this.reader, start, x - start));
+    }
+
+    /**
+     * 向前读一个字符
+     * @param x
+     * @return
+     */
     public int cc(int x) {
         return (int) this.reader[++this.x];
     }
@@ -54,21 +78,18 @@ public class P {
         return (reader[++x] == ' ' || reader[x] == '\t' || reader[x] == '\r' || reader[x] == '\n');
     }
 
-    //    final static boolean isBlank(int b) {
-//        return (b== ' ' || b== '\t' || b== '\r' || b== '\n');
-//    }
-//    final static boolean isBlank(byte b) {
-//        return (b== ' ' || b== '\t' || b== '\r' || b== '\n');
-//    }
-    final static boolean isBlank(int b) {
-        return (b == ' ' || b == '\t' || b == '\r' || b == '\n');
+    /**
+     * 是否空白字符
+     * @param b
+     * @return
+     */
+    final  boolean isBlank(int b) {
+        return (b == ' ' || b == '\t' || b == '\r' || b == '\n')||x<size;
     }
-//    final boolean is(int c) {
-//        boolean res = reader[x++] == c;
-//        return res;
-//    }
 
-
+    /**
+     * 离开暴力匹配部分,检查接着的字符是非标识符还是标识符
+     */
     public final void endId() {
         byte c;
         c = reader[x];
@@ -84,38 +105,64 @@ public class P {
         }
     }
 
+    /**
+     * 是否标识符
+     * @param c
+     * @return
+     */
     public boolean isId(int c) {
         return ('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z') || ('0' <= c && c <= '9') || (c == '_');
     }
 
+    /**
+     * 处理标识符,字符串,整型,浮点数,以及单个符号
+     */
     final void id() {
         char c = (char) reader[x];
         if (isId(c)) {
-            while (x < size) {
-                c = (char) reader[x];
-                if (isId(c)) {
-                    ++x;
-                } else {
-                    break;
+            if (Character.isDigit(reader[start])) {
+                while (x < size) {
+                    c = (char) reader[x];
+                    if (Character.isDigit(c) || c == '.') {
+                        ++x;
+                    } else {
+                        break;
+                    }
                 }
+                t = H.IDENTIFIED;
+            } else {
+                while (x < size) {
+                    c = (char) reader[x];
+                    if (isId(c)) {
+                        ++x;
+                    } else {
+                        break;
+                    }
+                }
+                t = H.IDENTIFIED;
             }
-            t = H.IDENTIFIED;
         } else if (c == '`') {
-            while (!(c == '`') && x < size) {
+            while (x < size) {
                 ++x;
                 c = (char) reader[x];
+                if ((c == '`')) {
+                    break;
+                }
             }
             ++x;
             t = H.IDENTIFIED;
         } else if (c == '\'') {
-            while (!(c == '\'') && x < size) {
+            while (x < size) {
                 ++x;
                 c = (char) reader[x];
+                if ((c == '\'')) {
+                    break;
+                }
             }
             ++x;
             t = H.IDENTIFIED;
         } else if (c == '"') {
-            if (x==0){
+            if (x == 0) {
                 ++x;
             }//避免x-1越界
             while (x < size) {
@@ -125,6 +172,10 @@ public class P {
                 }
                 ++x;
             }
+            ++x;
+            t = H.IDENTIFIED;
+        } else if (c == '-') {
+
             ++x;
             t = H.IDENTIFIED;
         } else {
@@ -155,13 +206,43 @@ public class P {
 
     }
 
+    /**
+     * 跳过注释和空白字符
+     */
     public void jumpPassSpace() {
         while (hasMore = x < size) {
             int c = reader[x];
-            if (c == ' ' || c == '\t' || c == '\n') {
-                ++x;
-            } else {
-                break;
+            switch (c) {
+                case '-': {
+                    int x1 = x + 1;
+                    c = (char) reader[x + 1];
+                    if (c == '-') {
+                        for (x = x1 + 1; x < size && reader[x] != '\n'; x++) {
+                        }
+                        continue;
+                    } else {
+                        return;
+                    }
+                }
+                case ' ':
+                case '\t':
+                case '\n':
+                    ++x;
+                    continue;
+                case '/': {
+                    int x1 = x + 1;
+                    c = reader[x1];
+                    if (c == '*') {
+                        for (x = x1 + 1; x < size && reader[x] != '*' && reader[x + 1] != '/'; x++) {
+                        }
+                        x += 2;
+                        continue;
+                    } else {
+                        return;
+                    }
+                }
+                default:
+                    return;
             }
         }
     }

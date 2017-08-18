@@ -6,7 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-public class Lexer extends P{
+public class Lexer extends P {
     public Lexer() {
 
 
@@ -25,10 +25,10 @@ public class Lexer extends P{
 
     public static void main(String[] args) throws Exception {
         Lexer lexer = new Lexer();
-        URI uri=Lexer.class.getResource(".").toURI();
+        URI uri = Lexer.class.getResource(".").toURI();
         Files.lines(Paths.get(uri).getParent().getParent().resolve("test.txt"))
-                .map((s)->s.toLowerCase().trim().getBytes(StandardCharsets.US_ASCII))
-                .forEach((s)->{
+                .map((s) -> s.toLowerCase().trim().concat(" ").getBytes(StandardCharsets.US_ASCII))
+                .forEach((s) -> {
                     lexer.init(s);
                     while (lexer.hasMore) {
                         lexer.match();
@@ -40,16 +40,15 @@ public class Lexer extends P{
 
 
     public Lexer(byte[] r) {
-        hasMore = true;
-        reader = r;
-        size = r.length;
+        init(r);
     }
+
 
     public void init(byte[] r) {
         hasMore = true;
         reader = r;
-        size = r.length;
-        x=0;
+        this.size = r.length - 1;
+        x = 0;
     }
     public void match() {
         jumpPassSpace();

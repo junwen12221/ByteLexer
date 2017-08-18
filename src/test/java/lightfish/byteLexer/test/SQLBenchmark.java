@@ -3,6 +3,10 @@
 //
 //import lightfish.byteLexer.NLexer;
 //import org.openjdk.jmh.annotations.*;
+//import org.openjdk.jmh.profile.CompilerProfiler;
+//import org.openjdk.jmh.profile.GCProfiler;
+//import org.openjdk.jmh.profile.PausesProfiler;
+//import org.openjdk.jmh.profile.StackProfiler;
 //import org.openjdk.jmh.runner.Runner;
 //import org.openjdk.jmh.runner.RunnerException;
 //import org.openjdk.jmh.runner.options.Options;
@@ -28,14 +32,29 @@
 //        Options opt = new OptionsBuilder()
 //                .include(SQLBenchmark.class.getSimpleName())
 //                .forks(1)
-//                //.output("SQLBenchmark.log")//输出信息到文件
+//                //     使用之前要安装hsdis
+//                //-XX:-TieredCompilation 关闭分层优化 -server
+//                //-XX:+LogCompilation  运行之后项目路径会出现按照测试顺序输出hotspot_pid<PID>.log文件,可以使用JITWatch进行分析,可以根据最后运行的结果的顺序按文件时间找到对应的hotspot_pid<PID>.log文件
+//                .jvmArgs("-XX:+UnlockDiagnosticVMOptions", "-XX:+LogCompilation", "-XX:+TraceClassLoading", "-XX:+PrintAssembly")
+//                  .addProfiler(CompilerProfiler.class)    // report JIT compiler profiling via standard MBeans
+//                  .addProfiler(GCProfiler.class)    // report GC time
+//                 .addProfiler(StackProfiler.class) // report method stack execution profile
+//                 .addProfiler(PausesProfiler.class)
+//                /*
+//                WinPerfAsmProfiler
+//                You must install Windows Performance Toolkit. Once installed, locate directory with xperf.exe file
+//                and either add it to PATH environment variable, or set it to jmh.perfasm.xperf.dir system property.
+//                 */
+//                //.addProfiler(WinPerfAsmProfiler.class)
+//                //更多Profiler,请看JMH介绍
+//                //.output("InstructionsBenchmark.log")//输出信息到文件
 //                .build();
 //        new Runner(opt).run();
 //    }
 //
 //    @Setup
 //    public void init() {
-//        src = "SELECT a FROM ab             , ee.ff AS f,(SELECT a FROM `schema_bb`.`tbl_bb`,(SELECT a FROM ccc AS c, `dddd`));";
+//        src = "SELECT a FROM ab             , ee.ff AS f,(SELECT a FROM `schema_bb`.`tbl_bb`,(SELECT a FROM ccc AS c, `dddd`)); ".toLowerCase();
 //        srcBytes = src.getBytes(StandardCharsets.UTF_8);//20794
 //        lexer=new NLexer();
 //        //newSQLParser.init();
@@ -48,8 +67,8 @@
 //    public void NewSqQLParserTest() { lexer.init(srcBytes);
 //    while (lexer.hasMore) {
 //        lexer.match();
-//        System.out.println(lexer.readString());
-//        System.out.println(lexer.getTokenType());
+//     System.out.println(lexer.readString());
+////        System.out.println(lexer.getTokenType());
 //    }}
 //
 ////    @Benchmark
