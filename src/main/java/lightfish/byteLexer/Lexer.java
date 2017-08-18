@@ -1,7 +1,10 @@
 package lightfish.byteLexer;
 
 
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class Lexer extends P{
     public Lexer() {
@@ -21,19 +24,18 @@ public class Lexer extends P{
     }
 
     public static void main(String[] args) throws Exception {
-        Lexer lexer = new Lexer("select t2.product_id,t2.PRODUCT_NAME,t2.product_status,t2.suggested_price,t3.file_path,t.sum,t4.min_price from v_product_num_all t join product t2 on t.product_id = t2.PRODUCT_ID join v_product_img t3 on t2.ATTACH_ID = t3.ATTACH_ROOT_ID join v_product_price t4 on t.product_id = t4.product_id where t2.CUST_ID = '100000000009818' ORDER BY t.sum desc LIMIT 3".toLowerCase().getBytes(StandardCharsets.US_ASCII));
-        while (lexer.hasMore) {
-            lexer.match();
-            System.out.println(lexer.readString());
-            System.out.println(lexer.getTokenType());
-        }
-        System.out.println("=>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-        lexer.init("SELECT a fROm ab             , ee.ff AS f,(SELECT a FROM `schema_bb`.`tbl_bb`,(SELECT a FROM ccc AS c, `dddd`));".toLowerCase().getBytes(StandardCharsets.US_ASCII));
-        while (lexer.hasMore) {
-            lexer.match();
-            System.out.println(lexer.readString());
-            System.out.println(lexer.getTokenType());
-        }
+        Lexer lexer = new Lexer();
+        URI uri=Lexer.class.getResource(".").toURI();
+        Files.lines(Paths.get(uri).getParent().getParent().resolve("test.txt"))
+                .map((s)->s.toLowerCase().trim().getBytes(StandardCharsets.US_ASCII))
+                .forEach((s)->{
+                    lexer.init(s);
+                    while (lexer.hasMore) {
+                        lexer.match();
+                        System.out.println(lexer.readString());
+                        //  System.out.println(lexer.getTokenType());
+                    }
+                });
     }
 
 

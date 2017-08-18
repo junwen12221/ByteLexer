@@ -19,7 +19,7 @@ public class P {
      * @return
      */
     static boolean isSeparator(byte b) {
-       return (!Character.isLetter(b)&&!Character.isDigit(b)&&b!='_');
+        return (!Character.isLetter(b) && !Character.isDigit(b) && b != '_');
     }
 
     /**
@@ -71,31 +71,33 @@ public class P {
 
     public final void endId() {
         byte c;
-        if ((x + 1) >= size) {
-            hasMore = false;
-        }
         c = reader[x];
-        if (isBlank(c) || c == '.' || c == ',') {
+        char t = (char) c;
+        //优先处理符号
+        if (isSeparator(c)) {
             return;
         } else {
             id();
         }
+        if (x == size) {
+            hasMore = false;
+        }
+    }
+
+    public boolean isId(int c) {
+        return ('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z') || ('0' <= c && c <= '9') || (c == '_');
     }
 
     final void id() {
-        char c;
-        if ((x + 1) >= size) {
-            hasMore = false;
-            ;
-        }
-        c = (char) reader[x];
-        if (('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z') || ('0' <= c && c <= '9') || c == '_') {
-            while ((c != ' ' && c != '\n' && c != '\t' && c != '.' && c != ',' && c != '\'' && c != '`') && x < size) {
+        char c = (char) reader[x];
+        if (isId(c)) {
+            while (x < size) {
                 c = (char) reader[x];
-                ++x;
-            }
-            if (c == '.' || c == ',' || c == '\'' || c == '`') {
-                --x;
+                if (isId(c)) {
+                    ++x;
+                } else {
+                    break;
+                }
             }
             t = H.IDENTIFIED;
         } else if (c == '`') {
@@ -113,13 +115,15 @@ public class P {
             ++x;
             t = H.IDENTIFIED;
         } else if (c == '"') {
+            if (x==0){
+                ++x;
+            }//避免x-1越界
             while (x < size) {
-                if (c == '"' && (reader[x - 1] != '\\')) {
-
-                } else {
-                    ++x;
-                    c = (char) reader[x];
+                c = (char) reader[x];
+                if ((c == '"' && (reader[x - 1] != '\\'))) {
+                    break;
                 }
+                ++x;
             }
             ++x;
             t = H.IDENTIFIED;

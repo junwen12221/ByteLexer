@@ -21,13 +21,6 @@ public class TrieTree {
             priority.put(String.valueOf(prioritys[i]), i);
         }
     }
-
-
-    /**
-     * 前缀树节点
-     *
-     * @author li
-     */
     private class Node {
         private int prefixNum;// 以该字符串为前缀的字符数
         private Node[] childNodes;
@@ -48,16 +41,6 @@ public class TrieTree {
             return Tool.genIfAnd(String.format("System.out.println(\"%s\");", args.toString()), "  x = Tool.getId(start, x, size, this.reader);", args.toArray(new String[args.size()]))
                     .concat("findNextToken();return x;");
         }
-
-        public String toSwitch() {
-            List<Integer> nodeIds = getNodes();
-//            nodeIds.stream().map((i)->this.childNodes[i]..toString())
-//            toIfElse(this, args);
-//            return Tool.genSwitch(, "endId();return;").genIfAnd(String.format("System.out.println(\"%s\");", args.toString()), "  x = Tool.getId(start, x, size, this.reader);", args.toArray(new String[args.size()]));
-//
-            return "";
-        }
-
         List<Integer> getNodes() {
             List<Integer> list = new ArrayList<>();
             for (int i = 0; i < childNodes.length; i++) {
@@ -129,10 +112,6 @@ public class TrieTree {
                 case 0:
                     return "";
                 case 1:
-//                    if (dfs(this.childNodes[list.get(0)], "", new HashMap<>(), true)) {
-//                        int i = list.get(0);
-//                        return childNodes[i].toString();
-//                    }
                 case 2:
                 case 3:
                 case 4: {
@@ -178,7 +157,7 @@ public class TrieTree {
         Iterator<Entry<String, String>> iterator = kv.iterator();
         while (iterator.hasNext()) {
             Entry<String, String> o = iterator.next();
-            String className = o.getKey().toUpperCase() + "ParseNode";
+            String className = Ascll.shiftAscll(o.getKey().toUpperCase()) + "ParseNode";
             String ss = String.format("package lightfish.byteLexer;\n class %s extends P{  public  int parse(){int c;%s}}", className, o.getValue());
             System.out.println(ss);
             Path p = basePath.resolve(className + ".java");
