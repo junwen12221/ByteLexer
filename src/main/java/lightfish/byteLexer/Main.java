@@ -31,7 +31,7 @@ public class Main {
 
     static void genFile(String generatedPath) throws Exception {
         String name = projectPath+"/src/main/java/lightfish/byteLexer/Lexer.java";
-        List<String> read = Files.readAllLines(Paths.get(projectPath+"/src/main/resources/minimal_sql_tokens.txt")).stream().filter((i) -> !"".equals(i)).collect(Collectors.toList());
+        List<String> read = Files.readAllLines(Paths.get(projectPath+"/src/main/resources/sql_tokens.txt")).stream().filter((i) -> !"".equals(i)).collect(Collectors.toList());
         Map<Character, List<String>> source = read.stream().map((i) -> i.trim()).filter((i) -> !"".equals(i)).distinct().collect(Collectors.groupingBy((k) -> k.charAt(0)));
         TrieTree trieTree = new TrieTree();
         source.values().stream().flatMap((s) -> s.stream()).forEach((i) -> trieTree.insert(i));

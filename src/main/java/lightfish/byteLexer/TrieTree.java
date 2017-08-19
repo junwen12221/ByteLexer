@@ -21,6 +21,7 @@ public class TrieTree {
             priority.put(String.valueOf(prioritys[i]), i);
         }
     }
+
     private class Node {
         private int prefixNum;// 以该字符串为前缀的字符数
         private Node[] childNodes;
@@ -41,6 +42,7 @@ public class TrieTree {
             return Tool.genIfAnd(String.format("System.out.println(\"%s\");", args.toString()), "  x = Tool.getId(start, x, size, this.reader);", args.toArray(new String[args.size()]))
                     .concat("findNextToken();return x;");
         }
+
         List<Integer> getNodes() {
             List<Integer> list = new ArrayList<>();
             for (int i = 0; i < childNodes.length; i++) {
@@ -70,10 +72,11 @@ public class TrieTree {
 
         /**
          * 生成ParseNode的各解析子路径的代码
+         *
          * @param string
          * @return
          */
-        public String toNodeChildCode(String string) {
+        public String toNodeChildCode(String string,StringBuilder funString) {
             List<Integer> list = getNodes();
             int size = list.size();
             /**
@@ -98,7 +101,57 @@ public class TrieTree {
                     Map<String, String> res = new HashMap<>(list.size());
                     for (Integer i : list) {
                         String str = String.valueOf("'" + (char) (i.intValue()) + "'");
-                        res.put(str, childNodes[i].toNodeChildCode(string + String.valueOf((char) (i.intValue()))));
+                        res.put(str, childNodes[i].toNodeChildCodeDown(string + String.valueOf((char) (i.intValue()))));
+                    }
+                    return "if(x<size){c" + "=cc(x);" + res.entrySet().stream()
+                            .map((entry) -> "if(c==" + entry.getKey() + "){" + entry.getValue() + "}")
+                            .collect(Collectors.joining()).concat(this.isLeaf ? "return x;}return x;" : "endId();return x;}return x;");
+                }
+                default:
+                    Map<String, String> res = new HashMap<>(list.size());
+                    for (Integer i : list) {
+                        String vaule=childNodes[i].toNodeChildCodeDown(string + String.valueOf((char) (i.intValue())));
+                        String name=String.valueOf("'" + (char) (i.intValue()) + "'");
+                        String funName=Ascll.shiftAscll(String.valueOf((char) (i.intValue())));
+                        String fun=String.format("private int %s(){int c;%s}",funName ,vaule);
+                        funString.append(fun);
+                        res.put(name,String.format("{return %s();}",funName) );
+                    }
+                    return genSwitchAdd1(res);
+            }
+        }
+        /**
+         * 生成ParseNode的各解析子路径的代码
+         *
+         * @param string
+         * @return
+         */
+        public String toNodeChildCodeDown(String string) {
+            List<Integer> list = getNodes();
+            int size = list.size();
+            /**
+             * 根据同一个位置需要匹配的字符数量来决定生成if还是switch,当是标识符最后一个字符时,也是if
+             */
+            switch (size) {
+                case 0:
+                    char c = string.length() == 0 ? 0 : string.charAt(0);
+                    String ret;
+                    //最后的匹配的if只会是剩下一个,不会是两个,如果后面的字符是空白符号,那就是匹配上标志符,否则就不是
+                    if (('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z')) {
+                        ret = "if(x<size){c=cc(x);if (isBlank(c)){t=H." + string.toUpperCase() + ";return x;}else{endId();return x;}}else{return x;}";
+                    } else {
+                        ret = "++x;return x;";
+                    }
+                    return ret;
+                case 1:
+                case 2:
+                case 3:
+                case 4: {
+                    //生成switch
+                    Map<String, String> res = new HashMap<>(list.size());
+                    for (Integer i : list) {
+                        String str = String.valueOf("'" + (char) (i.intValue()) + "'");
+                        res.put(str, childNodes[i].toNodeChildCodeDown(string + String.valueOf((char) (i.intValue()))));
                     }
                     return "if(x<size){c" + "=cc(x);" + res.entrySet().stream()
                             .map((entry) -> "if(c==" + entry.getKey() + "){" + entry.getValue() + "}")
@@ -108,14 +161,15 @@ public class TrieTree {
                     Map<String, String> res = new HashMap<>(list.size());
                     for (Integer i : list) {
                         String str = String.valueOf("'" + (char) (i.intValue()) + "'");
-                        res.put(str, childNodes[i].toNodeChildCode(string + String.valueOf((char) (i.intValue()))));
+                        String value=childNodes[i].toNodeChildCodeDown(string + String.valueOf((char) (i.intValue())));
+                        res.put(str, value);
                     }
                     return genSwitchAdd1(res);
             }
         }
-
         /**
          * 生成各AParseNode的顶层代码
+         *
          * @return
          * @throws IOException
          */
@@ -129,18 +183,19 @@ public class TrieTree {
                 case 2:
                 case 3:
                 case 4: {
-                    Map<String, String> res = new HashMap<>(list.size());
-                    for (Integer i : list) {
-                        String str = String.valueOf("'" + (char) (i.intValue()) + "'");
-                        res.put(str, childNodes[i].toNodeChildCode(String.valueOf((char) (i.intValue()))));
-                    }
-                    return "{c=reader[x];" + res.entrySet().stream().map((entry) -> "if(c" + "==" + entry.getKey() + "){" + entry.getValue() + "" + "}").collect(Collectors.joining()).concat("endId();return x;}");
+//                    Map<String, String> res = new HashMap<>(list.size());
+//                    for (Integer i : list) {
+//                        String str = String.valueOf("'" + (char) (i.intValue()) + "'");
+//                        res.put(str, childNodes[i].toNodeChildCode(String.valueOf((char) (i.intValue()))));
+//                    }
+//                    return "{c=reader[x];" + res.entrySet().stream().map((entry) -> "if(c" + "==" + entry.getKey() + "){" + entry.getValue() + "" + "}").collect(Collectors.joining()).concat("endId();return x;}");
                 }
                 default:
-                    Map<String, String> res = new HashMap<>(list.size());
+                    Map<String, String[]> res = new HashMap<>(list.size());
                     for (Integer i : list) {
                         String str = String.valueOf("" + (char) (i.intValue()) + "");
-                        res.put(str, childNodes[i].toNodeChildCode(String.valueOf((char) (i.intValue()))));
+                        StringBuilder stringBuilder=new StringBuilder();
+                        res.put(str,new String[]{childNodes[i].toNodeChildCode(String.valueOf((char) (i.intValue())),stringBuilder),stringBuilder.toString()});
                     }
                     String res1 = genSwitch(res);
                     return res1;
@@ -160,18 +215,16 @@ public class TrieTree {
      * @param map
      * @return
      */
-    String genSwitch(Map<String, String> map) throws IOException {
+    String genSwitch(Map<String, String[]> map) throws IOException {
         String body;
-        Set<Entry<String, String>> kv = map.entrySet();
-        Map<Boolean, List<Entry<String, String>>> data = kv.stream().collect(Collectors.partitioningBy((i) -> priority.containsKey(i)));
-        List<Entry<String, String>> main = data.get(Boolean.TRUE);
-        List<Entry<String, String>> other = data.get(Boolean.FALSE);
-        Path basePath = Paths.get(Main.projectPath+"/src/test/java/lightfish/byteLexer");
-        Iterator<Entry<String, String>> iterator = kv.iterator();
+        Set<Entry<String, String[]>> kv = map.entrySet();
+        Path basePath = Paths.get(Main.projectPath + "/src/test/java/lightfish/byteLexer");
+        Iterator<Entry<String, String[]>> iterator = kv.iterator();
         while (iterator.hasNext()) {
-            Entry<String, String> o = iterator.next();
+            Entry<String, String[]> o = iterator.next();
             String className = Ascll.shiftAscll(o.getKey().toUpperCase()) + "ParseNode";
-            String ss = String.format("package lightfish.byteLexer;\n class %s extends P{  public  int parse(){int c;%s}}", className, o.getValue());
+            String[] value = o.getValue();
+            String ss  = String.format("package lightfish.byteLexer;\nclass %s extends P{public  int parse(){int c;%s};%s}", className, value[0],value[1]==null?"":value[1]);
             System.out.println(ss);
             Path p = basePath.resolve(className + ".java");
             if (Files.exists(p)) {
@@ -184,7 +237,7 @@ public class TrieTree {
                 .concat(funName.entrySet().stream()
                         .map((e) -> {
                             String down = e.getValue().toLowerCase();
-                            String res = String.format("%ncase '%s' :{%s.init(reader,x);x=%s.parse();t=%s.t;break;}", e.getKey(),down, down, down);
+                            String res = String.format("%ncase '%s' :{%s.init(reader,x);x=%s.parse();t=%s.t;break;}", e.getKey(), down, down, down);
                             return res;
                         })
                         .collect(Collectors.joining())).concat("\ndefault:id();return;")
@@ -240,6 +293,7 @@ public class TrieTree {
         }
 
     }
+
     private HashMap<String, Integer> getPrefixString(Node root, String prefixStr) {
         prefixStr = prefixStr.toLowerCase();
         HashMap<String, Integer> map = new HashMap<String, Integer>();
@@ -295,7 +349,7 @@ public class TrieTree {
         }
         if (!tryFlag) {
             try {
-                System.out.println(genSwitch(res));
+              //  System.out.println(genSwitch(res));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -375,6 +429,7 @@ public class TrieTree {
 
     /**
      * 最顶层的生成字符串
+     *
      * @return
      */
     @Override
