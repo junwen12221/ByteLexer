@@ -18,8 +18,16 @@ public class TrieTree {
     public TrieTree(char... prioritys) {
         priority.clear();
         for (int i = 0; i < prioritys.length; i++) {
-            priority.put(String.valueOf(prioritys[i]), i);
+            priority.put(String.valueOf(prioritys[i]).toLowerCase(), i);
         }
+        root = new Node();
+    }
+    public TrieTree(List<String> read) {
+        priority.clear();
+        for (int i = 0; i < read.size(); i++) {
+            priority.put(read.get(i).toLowerCase(), i);
+        }
+        root = new Node();
     }
 
     private class Node {
@@ -76,7 +84,7 @@ public class TrieTree {
          * @param string
          * @return
          */
-        public String toNodeChildCode(String string,StringBuilder funString) {
+        public String toNodeChildCode(String string, StringBuilder funString) {
             List<Integer> list = getNodes();
             int size = list.size();
             /**
@@ -90,7 +98,7 @@ public class TrieTree {
                     if (('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z')) {
                         ret = "if(x<size){c=cc(x);if (isBlank(c)){t=H." + string.toUpperCase() + ";return x;}}else{return x;}";
                     } else {
-                        ret = "++x;return x;";
+                        ret = "t=H." + Ascll.shiftAscll(string,false).toUpperCase() + ";++x;return x;";
                     }
                     return ret;
                 case 1:
@@ -103,23 +111,30 @@ public class TrieTree {
                         String str = String.valueOf("'" + (char) (i.intValue()) + "'");
                         res.put(str, childNodes[i].toNodeChildCodeDown(string + String.valueOf((char) (i.intValue()))));
                     }
-                    return "if(x<size){c" + "=cc(x);" + res.entrySet().stream()
+                    String ifelse = "if(x<size){c" + "=cc(x);" + res.entrySet().stream()
                             .map((entry) -> "if(c==" + entry.getKey() + "){" + entry.getValue() + "}")
-                            .collect(Collectors.joining()).concat(this.isLeaf ? "return x;}return x;" : "endId();return x;}return x;");
+                            .collect(Collectors.joining());
+                    if (priority.containsKey(string)){
+                        String name =Ascll.shiftAscll(string,false);
+                        return ifelse.concat(this.isLeaf ? "t=H." + name.toUpperCase() + ";return x;}return x;" : "endId();return x;}return x;");
+                    }else {
+                        return ifelse.concat(this.isLeaf ? "return x;}return x;" : "endId();return x;}return x;");
+                    }
                 }
                 default:
                     Map<String, String> res = new HashMap<>(list.size());
                     for (Integer i : list) {
-                        String vaule=childNodes[i].toNodeChildCodeDown(string + String.valueOf((char) (i.intValue())));
-                        String name=String.valueOf("'" + (char) (i.intValue()) + "'");
-                        String funName=Ascll.shiftAscll(String.valueOf((char) (i.intValue())));
-                        String fun=String.format("private int %s(){int c;%s}",funName ,vaule);
+                        String vaule = childNodes[i].toNodeChildCodeDown(string + String.valueOf((char) (i.intValue())));
+                        String name = String.valueOf("'" + (char) (i.intValue()) + "'");
+                        String funName = Ascll.shiftAscll(String.valueOf((char) (i.intValue())),false);
+                        String fun = String.format("private int %s(){int c;%s}", funName, vaule);
                         funString.append(fun);
-                        res.put(name,String.format("{return %s();}",funName) );
+                        res.put(name, String.format("{return %s();}", funName));
                     }
-                    return genSwitchAdd1(res);
+                    return genSwitchAdd1(res,                   priority.containsKey(string)?string:null);
             }
         }
+
         /**
          * 生成ParseNode的各解析子路径的代码
          *
@@ -140,7 +155,7 @@ public class TrieTree {
                     if (('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z')) {
                         ret = "if(x<size){c=cc(x);if (isBlank(c)){t=H." + string.toUpperCase() + ";return x;}else{endId();return x;}}else{return x;}";
                     } else {
-                        ret = "++x;return x;";
+                        ret = "t=H." + Ascll.shiftAscll(string,true) + ";++x;return x;";
                     }
                     return ret;
                 case 1:
@@ -153,20 +168,27 @@ public class TrieTree {
                         String str = String.valueOf("'" + (char) (i.intValue()) + "'");
                         res.put(str, childNodes[i].toNodeChildCodeDown(string + String.valueOf((char) (i.intValue()))));
                     }
-                    return "if(x<size){c" + "=cc(x);" + res.entrySet().stream()
+                    String ifelse = "if(x<size){c" + "=cc(x);" + res.entrySet().stream()
                             .map((entry) -> "if(c==" + entry.getKey() + "){" + entry.getValue() + "}")
-                            .collect(Collectors.joining()).concat(this.isLeaf ? "return x;}return x;" : "endId();return x;}return x;");
+                            .collect(Collectors.joining());
+                    if (priority.containsKey(string)) {
+                        String name = Ascll.shiftAscll(string, false);
+                        return ifelse.concat(this.isLeaf ? "t=H." + name.toUpperCase() + ";return x;}return x;" : "endId();return x;}return x;");
+                    } else {
+                        return ifelse.concat(this.isLeaf ? "return x;}return x;" : "endId();return x;}return x;");
+                    }
                 }
                 default:
                     Map<String, String> res = new HashMap<>(list.size());
                     for (Integer i : list) {
                         String str = String.valueOf("'" + (char) (i.intValue()) + "'");
-                        String value=childNodes[i].toNodeChildCodeDown(string + String.valueOf((char) (i.intValue())));
+                        String value = childNodes[i].toNodeChildCodeDown(string + String.valueOf((char) (i.intValue())));
                         res.put(str, value);
                     }
-                    return genSwitchAdd1(res);
+                    return genSwitchAdd1(res,                   priority.containsKey(string)?string:null);
             }
         }
+
         /**
          * 生成各AParseNode的顶层代码
          *
@@ -194,8 +216,8 @@ public class TrieTree {
                     Map<String, String[]> res = new HashMap<>(list.size());
                     for (Integer i : list) {
                         String str = String.valueOf("" + (char) (i.intValue()) + "");
-                        StringBuilder stringBuilder=new StringBuilder();
-                        res.put(str,new String[]{childNodes[i].toNodeChildCode(String.valueOf((char) (i.intValue())),stringBuilder),stringBuilder.toString()});
+                        StringBuilder stringBuilder = new StringBuilder();
+                        res.put(str, new String[]{childNodes[i].toNodeChildCode(String.valueOf((char) (i.intValue())), stringBuilder), stringBuilder.toString()});
                     }
                     String res1 = genSwitch(res);
                     return res1;
@@ -222,9 +244,9 @@ public class TrieTree {
         Iterator<Entry<String, String[]>> iterator = kv.iterator();
         while (iterator.hasNext()) {
             Entry<String, String[]> o = iterator.next();
-            String className = Ascll.shiftAscll(o.getKey().toUpperCase()) + "ParseNode";
+            String className = Ascll.shiftAscll(o.getKey().toUpperCase(),false) + "ParseNode";
             String[] value = o.getValue();
-            String ss  = String.format("package lightfish.byteLexer;\nclass %s extends P{public  int parse(){int c;%s};%s}", className, value[0],value[1]==null?"":value[1]);
+            String ss = String.format("package lightfish.byteLexer;\nclass %s extends P{public  int parse(){int c;%s};%s}", className, value[0], value[1] == null ? "" : value[1]);
             System.out.println(ss);
             Path p = basePath.resolve(className + ".java");
             if (Files.exists(p)) {
@@ -244,12 +266,18 @@ public class TrieTree {
                 .concat("\n}");
     }
 
-    static String genSwitchAdd1(Map<String, String> map) {
-        return "switch (cc(x)){"
+    static String genSwitchAdd1(Map<String, String> map, String name) {
+        String body = "switch (c=cc(x)){"
                 .concat(map.entrySet().stream()
                         .map((e) -> String.format("%ncase %s :{%s}", e.getKey(), e.getValue()))
-                        .collect(Collectors.joining())).concat("\ndefault:endId();return x;")
-                .concat("\n}");
+                        .collect(Collectors.joining()));
+
+        String res = body.concat("\ndefault:");
+        if (name != null) {
+            return res + "if (isBlank(c)){t=H." + name.toUpperCase() + ";return x;}else{endId();return x;}".concat("\n}");
+        } else {
+            return res + "endId();return x;".concat("\n}");
+        }
     }
 
     static String genIfAnd(String body, String... args) {
@@ -349,7 +377,7 @@ public class TrieTree {
         }
         if (!tryFlag) {
             try {
-              //  System.out.println(genSwitch(res));
+                //  System.out.println(genSwitch(res));
             } catch (Exception e) {
                 e.printStackTrace();
             }

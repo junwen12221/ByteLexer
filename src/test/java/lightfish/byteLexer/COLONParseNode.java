@@ -1,2 +1,2 @@
 package lightfish.byteLexer;
-class COLONParseNode extends P{public  int parse(){int c;++x;return x;};}
+class COLONParseNode extends P{public  int parse(){int c;t=H.COLON;++x;return x;};}

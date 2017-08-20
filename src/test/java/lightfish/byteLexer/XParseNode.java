@@ -1,5 +1,5 @@
 package lightfish.byteLexer;
-class XParseNode extends P{public  int parse(){int c;switch (cc(x)){
+class XParseNode extends P{public  int parse(){int c;switch (c=cc(x)){
 case '5' :{{return FIVE();}}
 case 'm' :{{return m();}}
 case 'a' :{{return a();}}

@@ -13,15 +13,15 @@ import java.util.stream.Collectors;
  * Created by Administrator on 2017/4/8 0008.
  */
 public class Main {
-     static String projectPath;
+    static String projectPath;
+
     static {
         try {
             projectPath = "D:/byteLexer";
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
 
 
     public static void main(String[] args) throws Exception {
@@ -30,10 +30,18 @@ public class Main {
     }
 
     static void genFile(String generatedPath) throws Exception {
-        String name = projectPath+"/src/main/java/lightfish/byteLexer/Lexer.java";
-        List<String> read = Files.readAllLines(Paths.get(projectPath+"/src/main/resources/sql_tokens.txt")).stream().filter((i) -> !"".equals(i)).collect(Collectors.toList());
+        String name = projectPath + "/src/main/java/lightfish/byteLexer/Lexer.java";
+        List<String> read = Files.readAllLines(Paths.get(projectPath + "/src/main/resources/sql_tokens.txt"))
+                .stream().filter((i) -> !"".equals(i)).collect(Collectors.toList());
+        StringBuilder stringBuilder=new StringBuilder("package lightfish.byteLexer;public class H {");
+        for (int i = 0; i < read.size(); i++) {
+            String t = read.get(i);
+            stringBuilder.append( String.format("public static final int %s = %d;%n", Ascll.shiftAscll(t,false), i));
+        }
+        stringBuilder.append("}");
+        Files.write( Paths.get(generatedPath + "H.java"), stringBuilder.toString().getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE);
         Map<Character, List<String>> source = read.stream().map((i) -> i.trim()).filter((i) -> !"".equals(i)).distinct().collect(Collectors.groupingBy((k) -> k.charAt(0)));
-        TrieTree trieTree = new TrieTree();
+        TrieTree trieTree = new TrieTree(read);
         source.values().stream().flatMap((s) -> s.stream()).forEach((i) -> trieTree.insert(i));
         //source.get('I').stream().forEach((i) -> trieTree.insert(i));
         System.out.println(trieTree.toString());

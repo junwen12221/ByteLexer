@@ -3,7 +3,7 @@ package lightfish.byteLexer;
 class SParseNode extends P {
     public int parse() {
         int c;
-        switch (cc(x)) {
+        switch (c = cc(x)) {
             case 'n': {
                 {
                     return n();
@@ -240,6 +240,7 @@ class SParseNode extends P {
                                                     return x;
                                                 }
                                             }
+                                            t = H.SCHEMA;
                                             return x;
                                         }
                                         return x;
@@ -305,7 +306,7 @@ class SParseNode extends P {
 
     private int e() {
         int c;
-        switch (cc(x)) {
+        switch (c = cc(x)) {
             case 'n': {
                 if (x < size) {
                     c = cc(x);
@@ -447,6 +448,7 @@ class SParseNode extends P {
                         }
                         return x;
                     }
+                    t = H.SET;
                     return x;
                 }
                 return x;
@@ -611,6 +613,7 @@ class SParseNode extends P {
                                                 }
                                                 return x;
                                             }
+                                            t = H.SECOND;
                                             return x;
                                         }
                                         return x;
@@ -691,6 +694,7 @@ class SParseNode extends P {
                                                         }
                                                         return x;
                                                     }
+                                                    t = H.SESSION;
                                                     return x;
                                                 }
                                                 return x;
@@ -797,6 +801,7 @@ class SParseNode extends P {
                                                 }
                                                 return x;
                                             }
+                                            t = H.SERVER;
                                             return x;
                                         }
                                         return x;
@@ -874,6 +879,7 @@ class SParseNode extends P {
                                                 }
                                                 return x;
                                             }
+                                            t = H.SERIAL;
                                             return x;
                                         }
                                         return x;
@@ -1793,7 +1799,7 @@ class SParseNode extends P {
                         return x;
                     }
                     if (c == '_') {
-                        switch (cc(x)) {
+                        switch (c = cc(x)) {
                             case 'n': {
                                 if (x < size) {
                                     c = cc(x);
@@ -1920,7 +1926,7 @@ class SParseNode extends P {
                                                 if (x < size) {
                                                     c = cc(x);
                                                     if (c == '_') {
-                                                        switch (cc(x)) {
+                                                        switch (c = cc(x)) {
                                                             case 'm': {
                                                                 if (x < size) {
                                                                     c = cc(x);
@@ -3158,6 +3164,7 @@ class SParseNode extends P {
                         }
                         return x;
                     }
+                    t = H.SQL;
                     return x;
                 }
                 return x;
@@ -3284,6 +3291,7 @@ class SParseNode extends P {
                                                 }
                                                 return x;
                                             }
+                                            t = H.STDDEV;
                                             return x;
                                         }
                                         return x;
@@ -3298,6 +3306,7 @@ class SParseNode extends P {
                         }
                         return x;
                     }
+                    t = H.STD;
                     return x;
                 }
                 return x;
@@ -3501,6 +3510,7 @@ class SParseNode extends P {
                                             return x;
                                         }
                                     }
+                                    t = H.START;
                                     return x;
                                 }
                                 return x;
@@ -4034,7 +4044,7 @@ class SParseNode extends P {
                 return x;
             }
             if (c == 'b') {
-                switch (cc(x)) {
+                switch (c = cc(x)) {
                     case 'd': {
                         if (x < size) {
                             c = cc(x);
@@ -4214,6 +4224,7 @@ class SParseNode extends P {
                                                 }
                                                 return x;
                                             }
+                                            t = H.SUBSTR;
                                             return x;
                                         }
                                         return x;
@@ -4307,6 +4318,7 @@ class SParseNode extends P {
                                                                                                     return x;
                                                                                                 }
                                                                                             }
+                                                                                            t = H.SUBPARTITION;
                                                                                             return x;
                                                                                         }
                                                                                         return x;

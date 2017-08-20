@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 
 @BenchmarkMode(Mode.Throughput)//基准测试类型
 @OutputTimeUnit(TimeUnit.SECONDS)//基准测试结果的时间类型
-@Warmup(iterations = 100)//预热的迭代次数
+@Warmup(iterations = 10)//预热的迭代次数
 @Threads(1)//测试线程数量
 @State(Scope.Thread)//该状态为每个线程独享
 //度量:iterations进行测试的轮次，time每轮进行的时长，timeUnit时长单位,batchSize批次数量
@@ -35,7 +35,7 @@ NLexer lexer;
                 //     使用之前要安装hsdis
                 //-XX:-TieredCompilation 关闭分层优化 -server
                 //-XX:+LogCompilation  运行之后项目路径会出现按照测试顺序输出hotspot_pid<PID>.log文件,可以使用JITWatch进行分析,可以根据最后运行的结果的顺序按文件时间找到对应的hotspot_pid<PID>.log文件
-                .jvmArgs("-XX:+UnlockDiagnosticVMOptions", "-XX:+LogCompilation", "-XX:+TraceClassLoading", "-XX:+PrintAssembly")
+               // .jvmArgs("-XX:+UnlockDiagnosticVMOptions", "-XX:+LogCompilation", "-XX:+TraceClassLoading", "-XX:+PrintAssembly")
 //                  .addProfiler(CompilerProfiler.class)    // report JIT compiler profiling via standard MBeans
 //                  .addProfiler(GCProfiler.class)    // report GC time
 //                 .addProfiler(StackProfiler.class) // report method stack execution profile

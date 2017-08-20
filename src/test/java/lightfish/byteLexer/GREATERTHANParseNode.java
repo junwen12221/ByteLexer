@@ -1,2 +1,2 @@
 package lightfish.byteLexer;
-class GREATERTHANParseNode extends P{public  int parse(){int c;if(x<size){c=cc(x);if(c=='='){++x;return x;}return x;}return x;};}
+class GREATERTHANParseNode extends P{public  int parse(){int c;if(x<size){c=cc(x);if(c=='='){t=H.GREATER_THAN_OR_EQUAL_TO;++x;return x;}t=H.GREATERTHAN;return x;}return x;};}

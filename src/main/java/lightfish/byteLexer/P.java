@@ -10,7 +10,7 @@ public class P {
     public int start = 0;
     public int size;
     public int x = 0;
-    public long t;
+    public int t;
 
     /**
      * todo 性能优化
@@ -29,7 +29,7 @@ public class P {
      * @return
      */
 
-    public long getTokenType() {
+    public int getTokenType() {
         return t;
     }
 

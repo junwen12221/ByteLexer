@@ -12,16 +12,6 @@ public class NLexer extends P {
 
     }
 
-    /**
-     * 分模块
-     * 后缀符号解析有问题
-     *
-     * @return
-     */
-
-    public long getTokenType() {
-        return t;
-    }
 
     public static void main(String[] args) throws Exception {
         NLexer lexer = new NLexer();
