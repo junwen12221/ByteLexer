@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 
 @BenchmarkMode(Mode.Throughput)//基准测试类型
 @OutputTimeUnit(TimeUnit.SECONDS)//基准测试结果的时间类型
-@Warmup(iterations = 10)//预热的迭代次数
+@Warmup(iterations = 100)//预热的迭代次数
 @Threads(1)//测试线程数量
 @State(Scope.Thread)//该状态为每个线程独享
 //度量:iterations进行测试的轮次，time每轮进行的时长，timeUnit时长单位,batchSize批次数量

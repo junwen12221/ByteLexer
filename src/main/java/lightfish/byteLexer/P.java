@@ -18,8 +18,8 @@ public class P {
      * @param b
      * @return
      */
-    static boolean isSeparator(byte b) {
-        return (!Character.isLetter(b) && !Character.isDigit(b) && b != '_');
+     boolean isSeparator(byte b) {
+        return (!isId(b) && !isDigit(b) && b != '_');
     }
 
     /**
@@ -38,7 +38,7 @@ public class P {
         reader = r;
         size = r.length - 1;
         x = index;
-        t = 0;
+        t = H.IDENTIFIED ;
     }
 
     /**
@@ -113,6 +113,9 @@ public class P {
     public boolean isId(int c) {
         return ('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z') || ('0' <= c && c <= '9') || (c == '_');
     }
+    public boolean isDigit(int c) {
+        return ('0' <= c && c <= '9') ;
+    }
 
     /**
      * 处理标识符,字符串,整型,浮点数,以及单个符号
@@ -120,10 +123,10 @@ public class P {
     final void id() {
         char c = (char) reader[x];
         if (isId(c)) {
-            if (Character.isDigit(reader[start])) {
+            if (isDigit(reader[start])) {
                 while (x < size) {
                     c = (char) reader[x];
-                    if (Character.isDigit(c) || c == '.') {
+                    if (isDigit(c) || c == '.') {
                         ++x;
                     } else {
                         break;
