@@ -96,7 +96,7 @@ public class TrieTree {
                     String ret;
                     //最后的匹配的if只会是剩下一个,不会是两个,如果后面的字符是空白符号,那就是匹配上标志符,否则就不是
                     if (('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z')) {
-                        ret = "if(x<size){c=cc(x);if (isBlank(c)){t=H." + string.toUpperCase() + ";return x;}}else{return x;}";
+                        ret = "if(x<size){c=cc();if (isBlank(c)){t=H." + string.toUpperCase() + ";return x;}}else{return x;}";
                     } else {
                         ret = "t=H." + Ascll.shiftAscll(string,false).toUpperCase() + ";++x;return x;";
                     }
@@ -111,14 +111,14 @@ public class TrieTree {
                         String str = String.valueOf("'" + (char) (i.intValue()) + "'");
                         res.put(str, childNodes[i].toNodeChildCodeDown(string + String.valueOf((char) (i.intValue()))));
                     }
-                    String ifelse = "if(x<size){c" + "=cc(x);" + res.entrySet().stream()
+                    String ifelse = "if(x<size){c" + "=cc();" + res.entrySet().stream()
                             .map((entry) -> "if(c==" + entry.getKey() + "){" + entry.getValue() + "}")
                             .collect(Collectors.joining());
                     if (priority.containsKey(string)){
                         String name =Ascll.shiftAscll(string,false);
-                        return ifelse.concat(this.isLeaf ? "t=H." + name.toUpperCase() + ";return x;}return x;" : "endId();return x;}return x;");
+                        return ifelse.concat(this.isLeaf ? "t=H." + name.toUpperCase() + ";return x;}return x;" : "endId(c);return x;}return x;");
                     }else {
-                        return ifelse.concat(this.isLeaf ? "return x;}return x;" : "endId();return x;}return x;");
+                        return ifelse.concat(this.isLeaf ? "return x;}return x;" : "endId(c);return x;}return x;");
                     }
                 }
                 default:
@@ -153,7 +153,7 @@ public class TrieTree {
                     String ret;
                     //最后的匹配的if只会是剩下一个,不会是两个,如果后面的字符是空白符号,那就是匹配上标志符,否则就不是
                     if (('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z')) {
-                        ret = "if(x<size){c=cc(x);if (isBlank(c)){t=H." + string.toUpperCase() + ";return x;}else{endId();return x;}}else{return x;}";
+                        ret = "return endBlank(H." + string.toUpperCase() + ");";
                     } else {
                         ret = "t=H." + Ascll.shiftAscll(string,true) + ";++x;return x;";
                     }
@@ -168,14 +168,14 @@ public class TrieTree {
                         String str = String.valueOf("'" + (char) (i.intValue()) + "'");
                         res.put(str, childNodes[i].toNodeChildCodeDown(string + String.valueOf((char) (i.intValue()))));
                     }
-                    String ifelse = "if(x<size){c" + "=cc(x);" + res.entrySet().stream()
+                    String ifelse = "if(x<size){c" + "=cc();" + res.entrySet().stream()
                             .map((entry) -> "if(c==" + entry.getKey() + "){" + entry.getValue() + "}")
                             .collect(Collectors.joining());
                     if (priority.containsKey(string)) {
                         String name = Ascll.shiftAscll(string, false);
-                        return ifelse.concat(this.isLeaf ? "t=H." + name.toUpperCase() + ";return x;}return x;" : "endId();return x;}return x;");
+                        return ifelse.concat(this.isLeaf ? "t=H." + name.toUpperCase() + ";return x;}return x;" : "endId(c);return x;}return x;");
                     } else {
-                        return ifelse.concat(this.isLeaf ? "return x;}return x;" : "endId();return x;}return x;");
+                        return ifelse.concat(this.isLeaf ? "return x;}return x;" : "endId(c);return x;}return x;");
                     }
                 }
                 default:
@@ -255,28 +255,28 @@ public class TrieTree {
             Files.write(p, ss.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE);
             funName.put(o.getKey(), className);
         }
-        return "switch (reader[x]){"
+        return "switch (c=reader[x]){"
                 .concat(funName.entrySet().stream()
                         .map((e) -> {
                             String down = e.getValue().toLowerCase();
                             String res = String.format("%ncase '%s' :{%s.init(reader,x);x=%s.parse();t=%s.t;break;}", e.getKey(), down, down, down);
                             return res;
                         })
-                        .collect(Collectors.joining())).concat("\ndefault:id();return;")
+                        .collect(Collectors.joining())).concat("\ndefault:id(c);return;")
                 .concat("\n}");
     }
 
     static String genSwitchAdd1(Map<String, String> map, String name) {
-        String body = "switch (c=cc(x)){"
+        String body = "switch (c=cc()){"
                 .concat(map.entrySet().stream()
                         .map((e) -> String.format("%ncase %s :{%s}", e.getKey(), e.getValue()))
                         .collect(Collectors.joining()));
 
         String res = body.concat("\ndefault:");
         if (name != null) {
-            return res + "if (isBlank(c)){t=H." + name.toUpperCase() + ";return x;}else{endId();return x;}".concat("\n}");
+            return res + "if (isBlank(c)){t=H." + name.toUpperCase() + ";return x;}else{endId(c);return x;}".concat("\n}");
         } else {
-            return res + "endId();return x;".concat("\n}");
+            return res + "endId(c);return x;".concat("\n}");
         }
     }
 

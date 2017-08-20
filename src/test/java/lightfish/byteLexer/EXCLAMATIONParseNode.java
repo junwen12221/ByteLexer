@@ -1,2 +1,2 @@
 package lightfish.byteLexer;
-class EXCLAMATIONParseNode extends P{public  int parse(){int c;if(x<size){c=cc(x);if(c=='>'){t=H.NO_GREATER_THAN;++x;return x;}if(c=='='){t=H.NOTEQUAL;++x;return x;}if(c=='<'){t=H.NOT_LESS_THAN;++x;return x;}endId();return x;}return x;};}
+class EXCLAMATIONParseNode extends P{public  int parse(){int c;if(x<size){c=cc();if(c=='>'){t=H.NO_GREATER_THAN;++x;return x;}if(c=='='){t=H.NOTEQUAL;++x;return x;}if(c=='<'){t=H.NOT_LESS_THAN;++x;return x;}endId(c);return x;}return x;};}

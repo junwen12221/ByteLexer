@@ -22,7 +22,21 @@ public class NLexer extends P {
                     lexer.init(s);
                     while (lexer.hasMore) {
                         lexer.match();
-                        System.out.println(lexer.readString());
+                        switch (lexer.getTokenType()) {
+                            case H.FROM: {
+                                while (lexer.hasMore) {
+                                    lexer.match();
+                                    int type=lexer.getTokenType();
+                                    if (type==H.IDENTIFIED){
+                                        System.out.println(lexer.readString());
+                                    }else if (type==H.COMMA){
+                                        continue;
+                                    }
+                                }
+                            }
+                            default:
+                                continue;
+                        }
                         //  System.out.println(lexer.getTokenType());
                     }
                 });
@@ -40,6 +54,7 @@ public class NLexer extends P {
         this.size = r.length - 1;
         x = 0;
     }
+
     LEFTOPENBRACKETParseNode leftopenbracketparsenode =new LEFTOPENBRACKETParseNode();
 RIGHTCLOASBRACKETParseNode rightcloasbracketparsenode =new RIGHTCLOASBRACKETParseNode();
 UNDERLINEParseNode underlineparsenode =new UNDERLINEParseNode();
@@ -88,7 +103,7 @@ CLOSEBRACEParseNode closebraceparsenode =new CLOSEBRACEParseNode();
 GREATERTHANParseNode greaterthanparsenode =new GREATERTHANParseNode();
 QUESTIONMARKParseNode questionmarkparsenode =new QUESTIONMARKParseNode();
 public void match(){jumpPassSpace();this.start=x;int c=0;if (!hasMore)return;
-switch (reader[x]){
+switch (c=reader[x]){
 case '[' :{leftopenbracketparsenode.init(reader,x);x=leftopenbracketparsenode.parse();t=leftopenbracketparsenode.t;break;}
 case ']' :{rightcloasbracketparsenode.init(reader,x);x=rightcloasbracketparsenode.parse();t=rightcloasbracketparsenode.t;break;}
 case '_' :{underlineparsenode.init(reader,x);x=underlineparsenode.parse();t=underlineparsenode.t;break;}
@@ -136,6 +151,6 @@ case '=' :{equalparsenode.init(reader,x);x=equalparsenode.parse();t=equalparseno
 case '}' :{closebraceparsenode.init(reader,x);x=closebraceparsenode.parse();t=closebraceparsenode.t;break;}
 case '>' :{greaterthanparsenode.init(reader,x);x=greaterthanparsenode.parse();t=greaterthanparsenode.t;break;}
 case '?' :{questionmarkparsenode.init(reader,x);x=questionmarkparsenode.parse();t=questionmarkparsenode.t;break;}
-default:id();return;
+default:id(c);return;
 }
 }}

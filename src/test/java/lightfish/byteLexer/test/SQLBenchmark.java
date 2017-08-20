@@ -1,6 +1,7 @@
 package lightfish.byteLexer.test;
 
 
+import lightfish.byteLexer.H;
 import lightfish.byteLexer.NLexer;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.profile.CompilerProfiler;
@@ -17,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 @BenchmarkMode(Mode.Throughput)//基准测试类型
 @OutputTimeUnit(TimeUnit.SECONDS)//基准测试结果的时间类型
-@Warmup(iterations = 10)//预热的迭代次数
+@Warmup(iterations = 20)//预热的迭代次数
 @Threads(1)//测试线程数量
 @State(Scope.Thread)//该状态为每个线程独享
 //度量:iterations进行测试的轮次，time每轮进行的时长，timeUnit时长单位,batchSize批次数量
@@ -65,10 +66,23 @@ NLexer lexer;
 
     @Benchmark
     public void NewSqQLParserTest() { lexer.init(srcBytes);
-    while (lexer.hasMore) {
-        lexer.match();
-    // System.out.println(lexer.readString());
-//        System.out.println(lexer.getTokenType());
+        while (lexer.hasMore) {
+            lexer.match();
+            switch (lexer.getTokenType()) {
+                case H.FROM: {
+                    while (lexer.hasMore) {
+                        lexer.match();
+                        int type=lexer.getTokenType();
+                        if (type==H.IDENTIFIED){
+                            //
+                        }else if (type==H.COMMA){
+                            continue;
+                        }
+                    }
+                }
+                default:
+                    continue;
+            }
     }}
 
 //    @Benchmark

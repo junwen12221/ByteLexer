@@ -11,14 +11,16 @@ public class P {
     public int size;
     public int x = 0;
     public int t;
+    private final byte ICMask = (byte) 0xDF;//ignore case mask;
 
     /**
      * todo 性能优化
-     *非标识符部分
+     * 非标识符部分
+     *
      * @param b
      * @return
      */
-     boolean isSeparator(byte b) {
+    boolean isSeparator(int b) {
         return (!isId(b) && !isDigit(b) && b != '_');
     }
 
@@ -38,11 +40,12 @@ public class P {
         reader = r;
         size = r.length - 1;
         x = index;
-        t = H.IDENTIFIED ;
+        t = H.IDENTIFIED;
     }
 
     /**
      * 把标识符变成字符串
+     *
      * @return
      */
     public String readString() {
@@ -50,7 +53,8 @@ public class P {
     }
 
     /**
-     *todo 性能优化
+     * todo 性能优化
+     *
      * @return
      */
     public int readInt() {
@@ -59,6 +63,7 @@ public class P {
 
     /**
      * todo 性能优化
+     *
      * @return
      */
     public double readDouble() {
@@ -67,11 +72,35 @@ public class P {
 
     /**
      * 向前读一个字符
-     * @param x
+     *
+     * @param
      * @return
      */
-    public int cc(int x) {
-        return (int) this.reader[++this.x];
+    public int cc() {
+        return (int) (this.reader[++this.x]);
+    }
+
+    /**
+     * 依赖jit优化
+     * @param
+     * @return
+     */
+    public boolean cc(int h) {
+        if (x<size){
+            int c=this.reader[++this.x];
+            if (isDigit(h)) {//编译时确定,避免ICMask影响
+                return c == (h);
+            } else {
+                if (h == (ICMask & c)) {
+                    return true;
+                }else {
+                    endId(c);
+                    return false;
+                }
+            }
+        }else {
+            return false;
+        }
     }
 
     final boolean nextIsBlank() {
@@ -80,48 +109,72 @@ public class P {
 
     /**
      * 是否空白字符
+     *
      * @param b
      * @return
      */
-    final  boolean isBlank(int b) {
-        return (b == ' ' || b == '\t' || b == '\r' || b == '\n')||x<size;
+    final boolean isBlank(int b) {
+        return (b == ' ' || b == '\t' || b == '\r' || b == '\n') || x < size;
     }
 
     /**
      * 离开暴力匹配部分,检查接着的字符是非标识符还是标识符
      */
-    public final void endId() {
-        byte c;
-        c = reader[x];
+    public final void endId(int c) {
         char t = (char) c;
         //优先处理符号
         if (isSeparator(c)) {
             return;
         } else {
-            id();
+            id(c);
         }
         if (x == size) {
             hasMore = false;
         }
     }
 
+    public final void endId() {
+        endId(reader[x]);
+    }
+
+    public final int endBlank(int H) {
+        int c;
+        if (x < size) {
+            c = cc();
+            if (isBlank(c)) {
+                t = H;
+                return x;
+            } else {
+                endId(c);
+                return x;
+            }
+        } else {
+            return x;
+        }
+    }
+
     /**
      * 是否标识符
+     *
      * @param c
      * @return
      */
     public boolean isId(int c) {
         return ('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z') || ('0' <= c && c <= '9') || (c == '_');
     }
+
     public boolean isDigit(int c) {
-        return ('0' <= c && c <= '9') ;
+        return ('0' <= c && c <= '9');
     }
 
     /**
      * 处理标识符,字符串,整型,浮点数,以及单个符号
      */
     final void id() {
-        char c = (char) reader[x];
+        id(reader[x]);
+    }
+
+    final void id(int c) {
         if (isId(c)) {
             if (isDigit(reader[start])) {
                 while (x < size) {

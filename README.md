@@ -11,3 +11,5 @@
 在\src\test\java\lightfish\byteLexer生成词法分析器,
 
 其中src\test\java\lightfish\byteLexer\NLexer.java包含了测试用的主函数main
+
+bug:大小写解析会影响数字,这个需要生成后修改

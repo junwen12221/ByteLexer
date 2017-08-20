@@ -22,7 +22,21 @@ public class Lexer extends P {
                     lexer.init(s);
                     while (lexer.hasMore) {
                         lexer.match();
-                        System.out.println(lexer.readString());
+                        switch (lexer.getTokenType()) {
+                            case H.FROM: {
+                                while (lexer.hasMore) {
+                                    lexer.match();
+                                    int type=lexer.getTokenType();
+                                    if (type==H.IDENTIFIED){
+                                        System.out.println(lexer.readString());
+                                    }else if (type==H.COMMA){
+                                        continue;
+                                    }
+                                }
+                            }
+                            default:
+                                continue;
+                        }
                         //  System.out.println(lexer.getTokenType());
                     }
                 });
@@ -40,6 +54,7 @@ public class Lexer extends P {
         this.size = r.length - 1;
         x = 0;
     }
+
     public void match() {
         jumpPassSpace();
         this.start = x;
