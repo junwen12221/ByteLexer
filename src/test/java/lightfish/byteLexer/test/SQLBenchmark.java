@@ -2,6 +2,7 @@ package lightfish.byteLexer.test;
 
 
 import lightfish.byteLexer.H;
+import lightfish.byteLexer.LLKLexer;
 import lightfish.byteLexer.NLexer;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.profile.CompilerProfiler;
@@ -52,38 +53,52 @@ NLexer lexer;
                 .build();
         new Runner(opt).run();
     }
-
+    LLKLexer l;
     @Setup
     public void init() {
         src = "SELECT a FROM ab             , ee.ff AS f,(SELECT a FROM `schema_bb`.`tbl_bb`,(SELECT a FROM ccc AS c, `dddd`)); ".toLowerCase();
         srcBytes = src.getBytes(StandardCharsets.UTF_8);//20794
         lexer=new NLexer();
+         l = new LLKLexer(lexer);
         //newSQLParser.init();
 //        unsafeSQLParser = new NewUnsafeSQLParser();
 //        unsafeSQLParser.init();
+
         System.out.println("=> init");
     }
 
     @Benchmark
-    public void NewSqQLParserTest() { lexer.init(srcBytes);
-        while (lexer.hasMore) {
-            lexer.match();
-            switch (lexer.getTokenType()) {
+    public void NewSqQLParserTest() throws Exception{
+        l.init(srcBytes);
+        int type;
+        while ((type = l.t) != -1) {
+            switch (type) {
                 case H.FROM: {
-                    while (lexer.hasMore) {
-                        lexer.match();
-                        int type=lexer.getTokenType();
-                        if (type==H.IDENTIFIED){
-                            //
-                        }else if (type==H.COMMA){
-                            continue;
+                    do {
+                       type= l.read();
+                        if (type==H.ID_TOKEN){
+
                         }
-                    }
+                        if (l.peek() == H.DOT) {
+                            l.read2();
+
+                        }
+                        if (l.peek() == H.AS) {
+                            l.read2();
+                       //     System.out.println("as :" + l.readToString());
+                        }
+                        if (l.peek() == H.COMMA) {
+                            l.read();
+                        } else {
+                            break;
+                        }
+                    } while (true);
                 }
                 default:
-                    continue;
             }
-    }}
+            l.read();
+        }
+    }
 
 //    @Benchmark
 //    public void UnsafeSqQLParserTest() { unsafeSQLParser.tokenize(srcBytes);}

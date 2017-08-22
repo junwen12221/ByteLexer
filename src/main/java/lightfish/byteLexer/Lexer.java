@@ -19,17 +19,17 @@ public class Lexer extends P {
         Files.lines(Paths.get(uri).getParent().getParent().resolve("test.txt"))
                 .map((s) -> s.toLowerCase().trim().concat(" ").getBytes(StandardCharsets.US_ASCII))
                 .forEach((s) -> {
-                    lexer.init(s);
+                    lexer.init(s, 0);
                     while (lexer.hasMore) {
-                        lexer.match();
+                        lexer.parse();
                         switch (lexer.getTokenType()) {
                             case H.FROM: {
                                 while (lexer.hasMore) {
-                                    lexer.match();
-                                    int type=lexer.getTokenType();
-                                    if (type==H.IDENTIFIED){
+                                    lexer.parse();
+                                    int type = lexer.getTokenType();
+                                    if (type == H.IDENTIFIED) {
                                         System.out.println(lexer.readString());
-                                    }else if (type==H.COMMA){
+                                    } else if (type == H.COMMA) {
                                         continue;
                                     }
                                 }
@@ -44,22 +44,14 @@ public class Lexer extends P {
 
 
     public Lexer(byte[] r) {
-        init(r);
+        init(r, 0);
     }
 
-
-    public void init(byte[] r) {
-        hasMore = true;
-        reader = r;
-        this.size = r.length - 1;
-        x = 0;
-    }
-
-    public void match() {
+    public int parse() {
         jumpPassSpace();
         this.start = x;
         int c = 0;
-        if (!hasMore) return;
+        if (!hasMore) return x;
 //        switch (reader[x]){
 //            case 'a' :{x=AParseNode.parse(x);t=AParseNode.t;}
 //            case 'b' :{x=BParseNode.parse(x);t=BParseNode.t;}
@@ -89,5 +81,6 @@ public class Lexer extends P {
 //            case 'z' :{x=ZParseNode.parse(x);t=ZParseNode.t;}
 //            default:id();return;
 //        }
+        return x;
     }
 }

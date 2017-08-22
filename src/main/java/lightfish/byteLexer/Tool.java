@@ -35,7 +35,7 @@ public class Tool {
         return "case "+cvalue+":"+genReturnCaseBody(body);
     }
     static String genMethod(String name, String body) {
-        return "static class " + name + "{\n" + "public static void match(int x){" + body + "}}";
+        return "static class " + name + "{\n" + "public static void parse(int x){" + body + "}}";
     }
 
     static int jumpToSeparator(int index, int size, byte[] src) {

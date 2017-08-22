@@ -33,7 +33,7 @@ public interface Ascll {
             case "-":
                 return "MINUS";
             case ".":
-                return "FULLSTOP";
+                return "DOT";
             case "/":
                 return "FORWARDSLASH";
             case "\\":

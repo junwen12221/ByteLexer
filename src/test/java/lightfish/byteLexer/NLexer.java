@@ -19,17 +19,17 @@ public class NLexer extends P {
         Files.lines(Paths.get(uri).getParent().getParent().resolve("test.txt"))
                 .map((s) -> s.toLowerCase().trim().concat(" ").getBytes(StandardCharsets.US_ASCII))
                 .forEach((s) -> {
-                    lexer.init(s);
+                    lexer.init(s, 0);
                     while (lexer.hasMore) {
-                        lexer.match();
+                        lexer.parse();
                         switch (lexer.getTokenType()) {
                             case H.FROM: {
                                 while (lexer.hasMore) {
-                                    lexer.match();
-                                    int type=lexer.getTokenType();
-                                    if (type==H.IDENTIFIED){
+                                    lexer.parse();
+                                    int type = lexer.getTokenType();
+                                    if (type == H.IDENTIFIED) {
                                         System.out.println(lexer.readString());
-                                    }else if (type==H.COMMA){
+                                    } else if (type == H.COMMA) {
                                         continue;
                                     }
                                 }
@@ -44,15 +44,7 @@ public class NLexer extends P {
 
 
     public NLexer(byte[] r) {
-        init(r);
-    }
-
-
-    public void init(byte[] r) {
-        hasMore = true;
-        reader = r;
-        this.size = r.length - 1;
-        x = 0;
+        init(r, 0);
     }
 
     LEFTOPENBRACKETParseNode leftopenbracketparsenode =new LEFTOPENBRACKETParseNode();
@@ -78,8 +70,9 @@ PLUSParseNode plusparsenode =new PLUSParseNode();
 KParseNode kparsenode =new KParseNode();
 COMMAParseNode commaparsenode =new COMMAParseNode();
 LParseNode lparsenode =new LParseNode();
+MINUSParseNode minusparsenode =new MINUSParseNode();
 MParseNode mparsenode =new MParseNode();
-FULLSTOPParseNode fullstopparsenode =new FULLSTOPParseNode();
+DOTParseNode dotparsenode =new DOTParseNode();
 NParseNode nparsenode =new NParseNode();
 OParseNode oparsenode =new OParseNode();
 PParseNode pparsenode =new PParseNode();
@@ -102,55 +95,56 @@ EQUALParseNode equalparsenode =new EQUALParseNode();
 CLOSEBRACEParseNode closebraceparsenode =new CLOSEBRACEParseNode();
 GREATERTHANParseNode greaterthanparsenode =new GREATERTHANParseNode();
 QUESTIONMARKParseNode questionmarkparsenode =new QUESTIONMARKParseNode();
-public void match(){jumpPassSpace();this.start=x;int c=0;if (!hasMore)return;
+public int parse(){jumpPassSpace();this.start=x;int c=0;if (!hasMore)return x;
 switch (c=reader[x]){
-case '[' :{leftopenbracketparsenode.init(reader,x);x=leftopenbracketparsenode.parse();t=leftopenbracketparsenode.t;break;}
-case ']' :{rightcloasbracketparsenode.init(reader,x);x=rightcloasbracketparsenode.parse();t=rightcloasbracketparsenode.t;break;}
-case '_' :{underlineparsenode.init(reader,x);x=underlineparsenode.parse();t=underlineparsenode.t;break;}
-case '!' :{exclamationparsenode.init(reader,x);x=exclamationparsenode.parse();t=exclamationparsenode.t;break;}
-case 'a' :{aparsenode.init(reader,x);x=aparsenode.parse();t=aparsenode.t;break;}
-case 'b' :{bparsenode.init(reader,x);x=bparsenode.parse();t=bparsenode.t;break;}
-case 'c' :{cparsenode.init(reader,x);x=cparsenode.parse();t=cparsenode.t;break;}
-case 'd' :{dparsenode.init(reader,x);x=dparsenode.parse();t=dparsenode.t;break;}
-case '%' :{percentparsenode.init(reader,x);x=percentparsenode.parse();t=percentparsenode.t;break;}
-case 'e' :{eparsenode.init(reader,x);x=eparsenode.parse();t=eparsenode.t;break;}
-case '&' :{ampersandparsenode.init(reader,x);x=ampersandparsenode.parse();t=ampersandparsenode.t;break;}
-case 'f' :{fparsenode.init(reader,x);x=fparsenode.parse();t=fparsenode.t;break;}
-case 'g' :{gparsenode.init(reader,x);x=gparsenode.parse();t=gparsenode.t;break;}
-case '(' :{leftbracketparsenode.init(reader,x);x=leftbracketparsenode.parse();t=leftbracketparsenode.t;break;}
-case 'h' :{hparsenode.init(reader,x);x=hparsenode.parse();t=hparsenode.t;break;}
-case ')' :{rightbracketparsenode.init(reader,x);x=rightbracketparsenode.parse();t=rightbracketparsenode.t;break;}
-case 'i' :{iparsenode.init(reader,x);x=iparsenode.parse();t=iparsenode.t;break;}
-case '*' :{asteriskparsenode.init(reader,x);x=asteriskparsenode.parse();t=asteriskparsenode.t;break;}
-case 'j' :{jparsenode.init(reader,x);x=jparsenode.parse();t=jparsenode.t;break;}
-case '+' :{plusparsenode.init(reader,x);x=plusparsenode.parse();t=plusparsenode.t;break;}
-case 'k' :{kparsenode.init(reader,x);x=kparsenode.parse();t=kparsenode.t;break;}
-case ',' :{commaparsenode.init(reader,x);x=commaparsenode.parse();t=commaparsenode.t;break;}
-case 'l' :{lparsenode.init(reader,x);x=lparsenode.parse();t=lparsenode.t;break;}
-case 'm' :{mparsenode.init(reader,x);x=mparsenode.parse();t=mparsenode.t;break;}
-case '.' :{fullstopparsenode.init(reader,x);x=fullstopparsenode.parse();t=fullstopparsenode.t;break;}
-case 'n' :{nparsenode.init(reader,x);x=nparsenode.parse();t=nparsenode.t;break;}
-case 'o' :{oparsenode.init(reader,x);x=oparsenode.parse();t=oparsenode.t;break;}
-case 'p' :{pparsenode.init(reader,x);x=pparsenode.parse();t=pparsenode.t;break;}
-case 'q' :{qparsenode.init(reader,x);x=qparsenode.parse();t=qparsenode.t;break;}
-case 'r' :{rparsenode.init(reader,x);x=rparsenode.parse();t=rparsenode.t;break;}
-case 's' :{sparsenode.init(reader,x);x=sparsenode.parse();t=sparsenode.t;break;}
-case 't' :{tparsenode.init(reader,x);x=tparsenode.parse();t=tparsenode.t;break;}
-case 'u' :{uparsenode.init(reader,x);x=uparsenode.parse();t=uparsenode.t;break;}
-case 'v' :{vparsenode.init(reader,x);x=vparsenode.parse();t=vparsenode.t;break;}
-case 'w' :{wparsenode.init(reader,x);x=wparsenode.parse();t=wparsenode.t;break;}
-case 'x' :{xparsenode.init(reader,x);x=xparsenode.parse();t=xparsenode.t;break;}
-case 'y' :{yparsenode.init(reader,x);x=yparsenode.parse();t=yparsenode.t;break;}
-case ':' :{colonparsenode.init(reader,x);x=colonparsenode.parse();t=colonparsenode.t;break;}
-case 'z' :{zparsenode.init(reader,x);x=zparsenode.parse();t=zparsenode.t;break;}
-case ';' :{semicolonparsenode.init(reader,x);x=semicolonparsenode.parse();t=semicolonparsenode.t;break;}
-case '{' :{openbraceparsenode.init(reader,x);x=openbraceparsenode.parse();t=openbraceparsenode.t;break;}
-case '<' :{lessthanparsenode.init(reader,x);x=lessthanparsenode.parse();t=lessthanparsenode.t;break;}
-case '|' :{verticalparsenode.init(reader,x);x=verticalparsenode.parse();t=verticalparsenode.t;break;}
-case '=' :{equalparsenode.init(reader,x);x=equalparsenode.parse();t=equalparsenode.t;break;}
-case '}' :{closebraceparsenode.init(reader,x);x=closebraceparsenode.parse();t=closebraceparsenode.t;break;}
-case '>' :{greaterthanparsenode.init(reader,x);x=greaterthanparsenode.parse();t=greaterthanparsenode.t;break;}
-case '?' :{questionmarkparsenode.init(reader,x);x=questionmarkparsenode.parse();t=questionmarkparsenode.t;break;}
-default:id(c);return;
+case '[' :{leftopenbracketparsenode.init(reader,x);x=leftopenbracketparsenode.parse();t=leftopenbracketparsenode.t;return x;}
+case ']' :{rightcloasbracketparsenode.init(reader,x);x=rightcloasbracketparsenode.parse();t=rightcloasbracketparsenode.t;return x;}
+case '_' :{underlineparsenode.init(reader,x);x=underlineparsenode.parse();t=underlineparsenode.t;return x;}
+case '!' :{exclamationparsenode.init(reader,x);x=exclamationparsenode.parse();t=exclamationparsenode.t;return x;}
+case 'a' :{aparsenode.init(reader,x);x=aparsenode.parse();t=aparsenode.t;return x;}
+case 'b' :{bparsenode.init(reader,x);x=bparsenode.parse();t=bparsenode.t;return x;}
+case 'c' :{cparsenode.init(reader,x);x=cparsenode.parse();t=cparsenode.t;return x;}
+case 'd' :{dparsenode.init(reader,x);x=dparsenode.parse();t=dparsenode.t;return x;}
+case '%' :{percentparsenode.init(reader,x);x=percentparsenode.parse();t=percentparsenode.t;return x;}
+case 'e' :{eparsenode.init(reader,x);x=eparsenode.parse();t=eparsenode.t;return x;}
+case '&' :{ampersandparsenode.init(reader,x);x=ampersandparsenode.parse();t=ampersandparsenode.t;return x;}
+case 'f' :{fparsenode.init(reader,x);x=fparsenode.parse();t=fparsenode.t;return x;}
+case 'g' :{gparsenode.init(reader,x);x=gparsenode.parse();t=gparsenode.t;return x;}
+case '(' :{leftbracketparsenode.init(reader,x);x=leftbracketparsenode.parse();t=leftbracketparsenode.t;return x;}
+case 'h' :{hparsenode.init(reader,x);x=hparsenode.parse();t=hparsenode.t;return x;}
+case ')' :{rightbracketparsenode.init(reader,x);x=rightbracketparsenode.parse();t=rightbracketparsenode.t;return x;}
+case 'i' :{iparsenode.init(reader,x);x=iparsenode.parse();t=iparsenode.t;return x;}
+case '*' :{asteriskparsenode.init(reader,x);x=asteriskparsenode.parse();t=asteriskparsenode.t;return x;}
+case 'j' :{jparsenode.init(reader,x);x=jparsenode.parse();t=jparsenode.t;return x;}
+case '+' :{plusparsenode.init(reader,x);x=plusparsenode.parse();t=plusparsenode.t;return x;}
+case 'k' :{kparsenode.init(reader,x);x=kparsenode.parse();t=kparsenode.t;return x;}
+case ',' :{commaparsenode.init(reader,x);x=commaparsenode.parse();t=commaparsenode.t;return x;}
+case 'l' :{lparsenode.init(reader,x);x=lparsenode.parse();t=lparsenode.t;return x;}
+case '-' :{minusparsenode.init(reader,x);x=minusparsenode.parse();t=minusparsenode.t;return x;}
+case 'm' :{mparsenode.init(reader,x);x=mparsenode.parse();t=mparsenode.t;return x;}
+case '.' :{dotparsenode.init(reader,x);x=dotparsenode.parse();t=dotparsenode.t;return x;}
+case 'n' :{nparsenode.init(reader,x);x=nparsenode.parse();t=nparsenode.t;return x;}
+case 'o' :{oparsenode.init(reader,x);x=oparsenode.parse();t=oparsenode.t;return x;}
+case 'p' :{pparsenode.init(reader,x);x=pparsenode.parse();t=pparsenode.t;return x;}
+case 'q' :{qparsenode.init(reader,x);x=qparsenode.parse();t=qparsenode.t;return x;}
+case 'r' :{rparsenode.init(reader,x);x=rparsenode.parse();t=rparsenode.t;return x;}
+case 's' :{sparsenode.init(reader,x);x=sparsenode.parse();t=sparsenode.t;return x;}
+case 't' :{tparsenode.init(reader,x);x=tparsenode.parse();t=tparsenode.t;return x;}
+case 'u' :{uparsenode.init(reader,x);x=uparsenode.parse();t=uparsenode.t;return x;}
+case 'v' :{vparsenode.init(reader,x);x=vparsenode.parse();t=vparsenode.t;return x;}
+case 'w' :{wparsenode.init(reader,x);x=wparsenode.parse();t=wparsenode.t;return x;}
+case 'x' :{xparsenode.init(reader,x);x=xparsenode.parse();t=xparsenode.t;return x;}
+case 'y' :{yparsenode.init(reader,x);x=yparsenode.parse();t=yparsenode.t;return x;}
+case ':' :{colonparsenode.init(reader,x);x=colonparsenode.parse();t=colonparsenode.t;return x;}
+case 'z' :{zparsenode.init(reader,x);x=zparsenode.parse();t=zparsenode.t;return x;}
+case ';' :{semicolonparsenode.init(reader,x);x=semicolonparsenode.parse();t=semicolonparsenode.t;return x;}
+case '{' :{openbraceparsenode.init(reader,x);x=openbraceparsenode.parse();t=openbraceparsenode.t;return x;}
+case '<' :{lessthanparsenode.init(reader,x);x=lessthanparsenode.parse();t=lessthanparsenode.t;return x;}
+case '|' :{verticalparsenode.init(reader,x);x=verticalparsenode.parse();t=verticalparsenode.t;return x;}
+case '=' :{equalparsenode.init(reader,x);x=equalparsenode.parse();t=equalparsenode.t;return x;}
+case '}' :{closebraceparsenode.init(reader,x);x=closebraceparsenode.parse();t=closebraceparsenode.t;return x;}
+case '>' :{greaterthanparsenode.init(reader,x);x=greaterthanparsenode.parse();t=greaterthanparsenode.t;return x;}
+case '?' :{questionmarkparsenode.init(reader,x);x=questionmarkparsenode.parse();t=questionmarkparsenode.t;return x;}
+default:id(c);return x;
 }
 }}

@@ -4,7 +4,7 @@ package lightfish.byteLexer;
 /**
  * Created by jamie on 2017/8/16.
  */
-public class P {
+public abstract class P {
     public boolean hasMore;
     public byte[] reader;
     public int start = 0;
@@ -12,7 +12,7 @@ public class P {
     public int x = 0;
     public int t;
     private final byte ICMask = (byte) 0xDF;//ignore case mask;
-
+    public abstract int parse();
     /**
      * todo 性能优化
      * 非标识符部分
@@ -40,7 +40,7 @@ public class P {
         reader = r;
         size = r.length - 1;
         x = index;
-        t = H.IDENTIFIED;
+        t = H.ID_TOKEN;
     }
 
     /**
@@ -85,23 +85,23 @@ public class P {
      * @param
      * @return
      */
-    public boolean cc(int h) {
-        if (x<size){
-            int c=this.reader[++this.x];
-            if (isDigit(h)) {//编译时确定,避免ICMask影响
-                return c == (h);
-            } else {
-                if (h == (ICMask & c)) {
-                    return true;
-                }else {
-                    endId(c);
-                    return false;
-                }
-            }
-        }else {
-            return false;
-        }
-    }
+//    public boolean cc(int h) {
+//        if (x<size){
+//            int c=this.reader[++this.x];
+//            if (isDigit(h)) {//编译时确定,避免ICMask影响
+//                return c == (h);
+//            } else {
+//                if (h == (ICMask & c)) {
+//                    return true;
+//                }else {
+//                    endId(c);
+//                    return false;
+//                }
+//            }
+//        }else {
+//            return false;
+//        }
+//    }
 
     final boolean nextIsBlank() {
         return (reader[++x] == ' ' || reader[x] == '\t' || reader[x] == '\r' || reader[x] == '\n');
@@ -177,15 +177,20 @@ public class P {
     final void id(int c) {
         if (isId(c)) {
             if (isDigit(reader[start])) {
+                boolean isDouble=false;
                 while (x < size) {
                     c = (char) reader[x];
-                    if (isDigit(c) || c == '.') {
+                    if (isDigit(c) ||(isDouble= (c == '.'))) {
                         ++x;
                     } else {
                         break;
                     }
                 }
-                t = H.IDENTIFIED;
+                if (isDouble){
+                    t = H.DOUBLE_TOKEN;
+                }else{
+                    t = H.INT_TOKEN;
+                }
             } else {
                 while (x < size) {
                     c = (char) reader[x];
@@ -195,7 +200,7 @@ public class P {
                         break;
                     }
                 }
-                t = H.IDENTIFIED;
+                t = H.ID_TOKEN;
             }
         } else if (c == '`') {
             while (x < size) {
@@ -206,7 +211,7 @@ public class P {
                 }
             }
             ++x;
-            t = H.IDENTIFIED;
+            t = H.ID_TOKEN;
         } else if (c == '\'') {
             while (x < size) {
                 ++x;
@@ -216,7 +221,7 @@ public class P {
                 }
             }
             ++x;
-            t = H.IDENTIFIED;
+            t = H.ID_TOKEN;
         } else if (c == '"') {
             if (x == 0) {
                 ++x;
@@ -229,14 +234,13 @@ public class P {
                 ++x;
             }
             ++x;
-            t = H.IDENTIFIED;
+            t = H.STRING_TOKEN;
         } else if (c == '-') {
-
             ++x;
-            t = H.IDENTIFIED;
+            t = H.MINUS;
         } else {
             ++x;
-            t = H.IDENTIFIED;
+            t = H.ID_TOKEN;
         }
     }
 

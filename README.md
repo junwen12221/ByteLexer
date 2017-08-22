@@ -13,3 +13,4 @@
 其中src\test\java\lightfish\byteLexer\NLexer.java包含了测试用的主函数main
 
 bug:大小写解析会影响数字,这个需要生成后修改
+-不生成解析,因为-涉及注释--的解析

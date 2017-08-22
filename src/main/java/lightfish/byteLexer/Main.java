@@ -33,7 +33,10 @@ public class Main {
         String name = projectPath + "/src/main/java/lightfish/byteLexer/Lexer.java";
         List<String> read = Files.readAllLines(Paths.get(projectPath + "/src/main/resources/sql_tokens.txt"))
                 .stream().filter((i) -> !"".equals(i)).collect(Collectors.toList());
-        StringBuilder stringBuilder=new StringBuilder("package lightfish.byteLexer;public class H {");
+        StringBuilder stringBuilder=new StringBuilder("package lightfish.byteLexer;public class H {    public static final int STRING_TOKEN = 1000;\n" +
+                "    public static final int INT_TOKEN = 999;\n" +
+                "    public static final int DOUBLE_TOKEN = 998;\n" +
+                "    public static final int ID_TOKEN = 997;\n");
         for (int i = 0; i < read.size(); i++) {
             String t = read.get(i);
             stringBuilder.append( String.format("public static final int %s = %d;%n", Ascll.shiftAscll(t,false), i));
@@ -51,7 +54,7 @@ public class Main {
         Map<String, String> map = trieTree.getFunName();
         String head = map.values().stream().map((s) -> String.format("%s %s =new %s()", s, s.toLowerCase(), s)).collect(Collectors.joining(";\n")) + ";";
         System.out.println(head);
-        src = src.substring(0, src.lastIndexOf("public void match()")).concat(head).concat("\n").concat(body).concat("}");
+        src = src.substring(0, src.lastIndexOf("public int parse()")).concat(head).concat("\n").concat(body).concat("}");
         System.out.println(src);
         Path target = Paths.get(generatedPath + "NLexer.java");
         if (Files.exists(target)) Files.delete(target);

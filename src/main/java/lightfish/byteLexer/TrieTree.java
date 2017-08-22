@@ -259,10 +259,10 @@ public class TrieTree {
                 .concat(funName.entrySet().stream()
                         .map((e) -> {
                             String down = e.getValue().toLowerCase();
-                            String res = String.format("%ncase '%s' :{%s.init(reader,x);x=%s.parse();t=%s.t;break;}", e.getKey(), down, down, down);
+                            String res = String.format("%ncase '%s' :{%s.init(reader,x);x=%s.parse();t=%s.t;return x;}", e.getKey(), down, down, down);
                             return res;
                         })
-                        .collect(Collectors.joining())).concat("\ndefault:id(c);return;")
+                        .collect(Collectors.joining())).concat("\ndefault:id(c);return x;")
                 .concat("\n}");
     }
 
@@ -463,7 +463,7 @@ public class TrieTree {
     @Override
     public String toString() {
         try {
-            return "public void match(){jumpPassSpace();this.start=x;int c=0;if (!hasMore)return;\n" + this.root.toNodeCode() + "\n}";
+            return "public int parse(){jumpPassSpace();this.start=x;int c=0;if (!hasMore)return x;\n" + this.root.toNodeCode() + "\n}";
         } catch (Exception e) {
             e.printStackTrace();
         }
