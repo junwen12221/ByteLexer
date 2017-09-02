@@ -5,9 +5,9 @@ package lightfish.byteLexer.ast;
  */
 public abstract class ValueObject<T extends ValueObject, R extends ValueType> {
     int thisAddress = 0;
-    // ValueType valueType;
-    ObjectProvider<T, R> objectProvider;
-
+    R valueType;
+//    ObjectProvider<T, R>[] objectProvider;
+//
     public int getThisAddress() {
         return thisAddress;
     }
@@ -15,17 +15,24 @@ public abstract class ValueObject<T extends ValueObject, R extends ValueType> {
     public void setThisAddress(int thisAddress) {
         this.thisAddress = thisAddress;
     }
-
-
-    public ObjectProvider getObjectProvider() {
-        return objectProvider;
-    }
+//
+//
+//    public ObjectProvider getObjectProvider() {
+//        return objectProvider;
+//    }
+//
 
     public R getValueType() {
-        return objectProvider.getValueType();
+        return valueType;
     }
 
-    public void setObjectProvider(ObjectProvider objectProvider) {
-        this.objectProvider = objectProvider;
+    public void setValueType(R valueType) {
+        this.valueType = valueType;
     }
+
+//
+//    public void setObjectProvider(ObjectProvider objectProvider) {
+//        this.objectProvider = objectProvider;
+//    }
+
 }

@@ -17,6 +17,7 @@ public  abstract class ValueType {
         return this.byteStore;
     }
 
+
     public int Malloc() {
         return byteStore.malloc(Sizeof());
     }
