@@ -4,6 +4,8 @@ package lightfish.byteLexer.test;
 import lightfish.byteLexer.H;
 import lightfish.byteLexer.LLKLexer;
 import lightfish.byteLexer.NLexer;
+import lightfish.byteLexer.ast.ByteStore;
+import lightfish.byteLexer.ast.ValueType;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.profile.CompilerProfiler;
 import org.openjdk.jmh.profile.GCProfiler;
@@ -14,6 +16,7 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
@@ -25,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 //度量:iterations进行测试的轮次，time每轮进行的时长，timeUnit时长单位,batchSize批次数量
 @Measurement(iterations = 10, time = -1, timeUnit = TimeUnit.SECONDS, batchSize = -1)
 public class SQLBenchmark {
-NLexer lexer;
+    NLexer lexer;
     byte[] srcBytes;
     String src;
 
@@ -37,9 +40,9 @@ NLexer lexer;
                 //     使用之前要安装hsdis
                 //-XX:-TieredCompilation 关闭分层优化 -server
                 //-XX:+LogCompilation  运行之后项目路径会出现按照测试顺序输出hotspot_pid<PID>.log文件,可以使用JITWatch进行分析,可以根据最后运行的结果的顺序按文件时间找到对应的hotspot_pid<PID>.log文件
-               // .jvmArgs("-XX:+UnlockDiagnosticVMOptions", "-XX:+LogCompilation", "-XX:+TraceClassLoading", "-XX:+PrintAssembly")
+                .jvmArgs("-XX:+UnlockDiagnosticVMOptions", "-XX:+LogCompilation", "-XX:+TraceClassLoading", "-XX:+PrintAssembly")
 //                  .addProfiler(CompilerProfiler.class)    // report JIT compiler profiling via standard MBeans
-//                  .addProfiler(GCProfiler.class)    // report GC time
+                  .addProfiler(GCProfiler.class)    // report GC time
 //                 .addProfiler(StackProfiler.class) // report method stack execution profile
 //                 .addProfiler(PausesProfiler.class)
                 /*
@@ -53,13 +56,146 @@ NLexer lexer;
                 .build();
         new Runner(opt).run();
     }
+
     LLKLexer l;
+
+    public static void parse(LLKLexer l) throws Exception {
+        int type = l.t;
+        while ((type = l.t) != -1) {
+            switch (type) {
+                case H.FROM: {
+                    do {
+                        type = l.read();
+                        //    String head = l.read2String();
+                        if (type == H.LEFTBRACKET) {
+                            // System.out.println("=====>");
+                            while ((type = l.t) != -1) {
+                                switch (type) {
+                                    case H.FROM: {
+                                        do {
+                                            type = l.read();
+                                            //    String head = l.read2String();
+                                            if (type == H.LEFTBRACKET) {
+                                                // System.out.println("=====>");
+                                                parse(l);
+                                            }
+                                            if (type == H.ID_TOKEN) {
+                                                // System.out.println(head);
+                                            }
+                                            if (l.peek() == H.DOT) {
+                                                l.read2();
+                                                // System.out.println("." + l.read2String());
+                                            }
+                                            if (l.peek() == H.AS) {
+                                                l.read2();
+                                                // System.out.println("as :" + l.read2String());
+                                            }
+                                            if (l.peek() == H.COMMA) {
+                                                l.read();
+                                            } else {
+                                                break;
+                                            }
+                                        } while (true);
+                                        continue;
+                                    }
+                                    case H.LEFTBRACKET: {
+                                        l.read();
+                                        parse(l);
+                                        continue;
+                                    }
+                                    case H.RIGHTBRACKET: {
+                                        l.read();
+                                        // System.out.println("<=====");
+                                        return;
+                                    }
+                                    default:
+                                }
+                                l.read();
+                            }
+                        }
+                        if (type == H.ID_TOKEN) {
+                            // System.out.println(head);
+                        }
+                        if (l.peek() == H.DOT) {
+                            l.read2();
+                            // System.out.println("." + l.read2String());
+                        }
+                        if (l.peek() == H.AS) {
+                            l.read2();
+                            // System.out.println("as :" + l.read2String());
+                        }
+                        if (l.peek() == H.COMMA) {
+                            l.read();
+                        } else {
+                            break;
+                        }
+                    } while (true);
+                    continue;
+                }
+                case H.LEFTBRACKET: {
+                    l.read();
+                    while ((type = l.t) != -1) {
+                        switch (type) {
+                            case H.FROM: {
+                                do {
+                                    type = l.read();
+                                    //    String head = l.read2String();
+                                    if (type == H.LEFTBRACKET) {
+                                        // System.out.println("=====>");
+                                        parse(l);
+                                    }
+                                    if (type == H.ID_TOKEN) {
+                                        // System.out.println(head);
+                                    }
+                                    if (l.peek() == H.DOT) {
+                                        l.read2();
+                                        // System.out.println("." + l.read2String());
+                                    }
+                                    if (l.peek() == H.AS) {
+                                        l.read2();
+                                        // System.out.println("as :" + l.read2String());
+                                    }
+                                    if (l.peek() == H.COMMA) {
+                                        l.read();
+                                    } else {
+                                        break;
+                                    }
+                                } while (true);
+                                continue;
+                            }
+                            case H.LEFTBRACKET: {
+                                l.read();
+                                parse(l);
+                                continue;
+                            }
+                            case H.RIGHTBRACKET: {
+                                l.read();
+                                // System.out.println("<=====");
+                                return;
+                            }
+                            default:
+                        }
+                        l.read();
+                    }
+                    continue;
+                }
+                case H.RIGHTBRACKET: {
+                    l.read();
+                    // System.out.println("<=====");
+                    return;
+                }
+                default:
+            }
+            l.read();
+        }
+    }
+
     @Setup
     public void init() {
-        src = "SELECT a FROM ab             , ee.ff AS f,(SELECT a FROM `schema_bb`.`tbl_bb`,(SELECT a FROM ccc AS c, `dddd`)); ".toLowerCase();
+        src = "1+(8*7+(1+7+(12345+1+8*(7+1)+8*7+1)+7+ 1)+8)*7".toLowerCase();
         srcBytes = src.getBytes(StandardCharsets.UTF_8);//20794
-        lexer=new NLexer();
-         l = new LLKLexer(lexer);
+        lexer = new NLexer();
+        l = new LLKLexer(lexer);
         //newSQLParser.init();
 //        unsafeSQLParser = new NewUnsafeSQLParser();
 //        unsafeSQLParser.init();
@@ -68,37 +204,11 @@ NLexer lexer;
     }
 
     @Benchmark
-    public void NewSqQLParserTest() throws Exception{
+    public void NewSqQLParserTest() throws Exception {
         l.init(srcBytes);
-        int type;
-        while ((type = l.t) != -1) {
-            switch (type) {
-                case H.FROM: {
-                    do {
-                       type= l.read();
-                        if (type==H.ID_TOKEN){
-
-                        }
-                        if (l.peek() == H.DOT) {
-                            l.read2();
-
-                        }
-                        if (l.peek() == H.AS) {
-                            l.read2();
-                       //     System.out.println("as :" + l.readToString());
-                        }
-                        if (l.peek() == H.COMMA) {
-                            l.read();
-                        } else {
-                            break;
-                        }
-                    } while (true);
-                }
-                default:
-            }
-            l.read();
-        }
+        Test.expr(l);
     }
+
 
 //    @Benchmark
 //    public void UnsafeSqQLParserTest() { unsafeSQLParser.tokenize(srcBytes);}

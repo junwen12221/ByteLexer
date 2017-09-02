@@ -28,12 +28,20 @@ public class LLKLexer {
     private List<Integer> IdStartQueue = new ArrayQueue<Integer>(16);
     private List<Integer> IdEndQueue = new ArrayQueue<Integer>(16);
 
-    public String readToString() {
+    public String read2String() {
         String str = new String(lexer.reader, start, end - start);
         return str;
-
     }
-
+    public int read2Int() {
+        int value = 0;
+        for (int i=start; i<end; i++) {
+            value = (value*10)+(lexer.reader[i]-'0');
+        }
+       return value;
+    }
+    public double read2Double() {
+        return Double.parseDouble(new String(lexer.reader, start, end - start));
+    }
     public LLKLexer(P r) {
         hasMore = true;
         lexer = r;
@@ -46,6 +54,10 @@ public class LLKLexer {
         t=lexer.t;
         start=lexer.start;
         end=lexer.x;
+        lexer.parse();
+        t2=lexer.t;
+        start2=lexer.start;
+        end2=lexer.x;
     }
 
     public int read() throws Exception {
@@ -80,7 +92,8 @@ public class LLKLexer {
 
 
     public void match(int key) throws Exception {
-        int token = read();
+        int token = t;
+        read();
         if (key != token) {
             throw new Exception(key + " expected.");//todo 输出token\
         }
