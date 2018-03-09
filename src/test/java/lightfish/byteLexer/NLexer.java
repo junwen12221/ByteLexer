@@ -70,7 +70,6 @@ PLUSParseNode plusparsenode =new PLUSParseNode();
 KParseNode kparsenode =new KParseNode();
 COMMAParseNode commaparsenode =new COMMAParseNode();
 LParseNode lparsenode =new LParseNode();
-MINUSParseNode minusparsenode =new MINUSParseNode();
 MParseNode mparsenode =new MParseNode();
 DOTParseNode dotparsenode =new DOTParseNode();
 NParseNode nparsenode =new NParseNode();
@@ -120,7 +119,6 @@ case '+' :{plusparsenode.init(reader,x);x=plusparsenode.parse();t=plusparsenode.
 case 'k' :{kparsenode.init(reader,x);x=kparsenode.parse();t=kparsenode.t;return x;}
 case ',' :{commaparsenode.init(reader,x);x=commaparsenode.parse();t=commaparsenode.t;return x;}
 case 'l' :{lparsenode.init(reader,x);x=lparsenode.parse();t=lparsenode.t;return x;}
-case '-' :{minusparsenode.init(reader,x);x=minusparsenode.parse();t=minusparsenode.t;return x;}
 case 'm' :{mparsenode.init(reader,x);x=mparsenode.parse();t=mparsenode.t;return x;}
 case '.' :{dotparsenode.init(reader,x);x=dotparsenode.parse();t=dotparsenode.t;return x;}
 case 'n' :{nparsenode.init(reader,x);x=nparsenode.parse();t=nparsenode.t;return x;}

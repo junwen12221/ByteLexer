@@ -1,24 +1,27 @@
 
 package lightfish.byteLexer.ast;
 
-public class TestValueType extends ValueType {
+public final class TestValueType {
+    final ByteStore byteStore;
 
-public TestValueType(ByteStore b){super(b);}
+    public TestValueType(ByteStore b) {
+        byteStore = b;
+    }
 /**
  * static const field
  *
  *
  */
-public final int BYTES_OFFSET=0;
-public final int SHORTS_OFFSET=1;
-public final int CHARS_OFFSET=3;
-public final int INTS_OFFSET=5;
-public final int LONGS_OFFSET=9;
-public final int FLOATS_OFFSET=17;
-public final int DOUBLES_OFFSET=21;
-public final int VALUES_OFFSET=29;
-public final int RIGHTS_OFFSET=33;
-public final int LEFTS_OFFSET=37;
+public static final int BYTES_OFFSET=0;
+public static final int SHORTS_OFFSET=1;
+public static final int CHARS_OFFSET=3;
+public static final int INTS_OFFSET=5;
+public static final int LONGS_OFFSET=9;
+public static final int FLOATS_OFFSET=17;
+public static final int DOUBLES_OFFSET=21;
+public static final int VALUES_OFFSET=29;
+public static final int RIGHTS_OFFSET=33;
+public static final int LEFTS_OFFSET=37;
 
 
 /**
@@ -49,11 +52,13 @@ public  void setLeft(int thisAddress,int value) {byteStore.setAddress(thisAddres
 
 
 public static final int SIZE=41;
-@Override
-int Sizeof(){return SIZE;}
+
 /**
  * static getAlloc
  */
+public  int getAllocRightIfNull(int thisAddress) {return byteStore.getRefIfNull(thisAddress+RIGHTS_OFFSET,TestValueType.SIZE);}
+public  int getAllocLeftIfNull(int thisAddress) {return byteStore.getRefIfNull(thisAddress+LEFTS_OFFSET,TestValueType.SIZE);}
 public  int getAllocRight(int thisAddress) {return byteStore.getRef(thisAddress+RIGHTS_OFFSET,TestValueType.SIZE);}
-public  int getAllocLeft(int thisAddress) {return byteStore.getRef(thisAddress+LEFTS_OFFSET,TestValueType.SIZE);}
+    public  int getAllocLeft(int thisAddress) {return byteStore.getRef(thisAddress+LEFTS_OFFSET,TestValueType.SIZE);}
+
 }

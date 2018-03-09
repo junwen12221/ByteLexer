@@ -6,13 +6,19 @@ import java.util.Arrays;
 /**
  * Created by jamie on 2017/8/29.
  */
-public class ByteStore {
+public final class ByteStore {
     ByteBuffer bytes;
     int position = 1;
     public static final   boolean isDebug=false;
 
     public ByteBuffer getBytes() {
         return bytes;
+    }
+
+    public ByteStore(ByteBuffer bytes) {
+        this.bytes = bytes;
+    }
+    public ByteStore() {
     }
 
     public void setBytes(ByteBuffer bytes) {
@@ -138,13 +144,19 @@ public class ByteStore {
         return res;
     }
 
-    public int getRef(int pos, int size) {
+    public int getRefIfNull(int pos, int size) {
         int var;
         if ((var = this.getAddress(pos)) == 0) {
-            var = this.malloc(size);
-            this.setAddress(pos,var);
+            return getRef(pos, size);
         }
         if (isDebug) debugRef(pos,size,var);
+        return var;
+    }
+
+    public int getRef(int pos, int size) {
+        int var = this.malloc(size);
+        this.setAddress(pos, var);
+        if (isDebug) debugRef(pos, size, var);
         return var;
     }
     public void init(int start,int limit) {
@@ -157,10 +169,9 @@ public class ByteStore {
     public String toString() {
         return "ByteStore{" +
                 "bytes=" + Arrays.toString(bytes.array()) +
-                ", position=" + position +
+                ", setThisAddress=" + position +
                 '}';
     }
-    private static final boolean READ=true;
     private void debugSet(String type, int pos, Number value){
             String opString = "set";
             System.out.println(String.format("set%s(%d,%d);", type, pos, value));
@@ -172,7 +183,7 @@ public class ByteStore {
     }
     private void  debugRef(int pos,int size,int res){
             String opString = "get";
-            System.out.println(String.format("getRef(%d,%d);//res=%d", pos, size, res));
+        System.out.println(String.format("getRefIfNull(%d,%d);//res=%d", pos, size, res));
     }
     private void  debugMalloc(int size,int pos){
             System.out.println(String.format("address=Malloc(%d);//address=%d%n",size,pos));

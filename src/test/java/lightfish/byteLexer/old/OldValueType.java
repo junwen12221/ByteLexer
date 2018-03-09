@@ -2,7 +2,9 @@ package lightfish.byteLexer.old;
 
 import lightfish.byteLexer.ast.ByteStore;
 
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.Arrays;
 
 /**
@@ -93,8 +95,8 @@ public class OldValueType {
         return byteStore.getInt(thisAddress);
     }
 
-    public static OldValueType init(ByteStore byteStore) {
-        byteStore.setBytes(ByteBuffer.allocateDirect(256));
+    public static OldValueType init(ByteStore byteStore) throws Exception{
+        byteStore.setBytes(ByteBuffer.allocateDirect(8192));
         byteStore.start();
         OldValueType root = new OldValueType();
         byteStore.start();
@@ -102,7 +104,7 @@ public class OldValueType {
         return root;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args)throws Exception {
         ByteStore byteStore = new ByteStore();
         OldValueType root = init(byteStore);
         ///////////////////////////////////

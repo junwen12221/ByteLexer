@@ -1,7 +1,9 @@
 package lightfish.byteLexer.test;
 
 
-import lightfish.byteLexer.ast.*;
+import lightfish.byteLexer.ast.ByteStore;
+import lightfish.byteLexer.ast.StaticValueType;
+import lightfish.byteLexer.ast.TestValueType;
 import lightfish.byteLexer.old.OldValueType;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.profile.GCProfiler;
@@ -31,7 +33,7 @@ public class ASTBenchmark {
     public static void main(String[] args) throws Exception {
         ASTBenchmark benchmark = new ASTBenchmark();
         benchmark.init();
-        benchmark.testValueObject();
+        // benchmark.testValueObject();
         // benchmark.staticValueType();
         Options opt = new OptionsBuilder()
                 .include(ASTBenchmark.class.getSimpleName())
@@ -65,17 +67,18 @@ public class ASTBenchmark {
         testValueType=new TestValueType(byteStore);
         ///////////////////////////////////////////
         valueType = new TestValueType(byteStore);
-        provider = new ObjectProviderArray<>();
-        provider.init(64, TestValueObject.class, valueType, (e, f) -> {
-            e.setTestProvider(f);
-            e.setValueType(valueType);
-        });
+//        provider = new ObjectProviderArray<>();
+//        provider.init(64, TestValueObject.class, valueType, (e, f) -> {
+//            e.setTestProvider(f);
+//            e.setValueType(valueType);
+//        });
         System.out.println("=> init");
     }
 
-    ObjectProviderArray<TestValueObject, TestValueType> provider;
+    // ObjectProviderArray<TestValueObject, TestValueType> provider;
     TestValueType valueType;
-    @Benchmark
+
+    //  @Benchmark
     public void newValueType() throws Exception {
         byteStore.end();
         int address = byteStore.malloc(12);
@@ -84,7 +87,7 @@ public class ASTBenchmark {
         testValueType.setValue(left, 1);
         int right = testValueType.getAllocRight(address);
         testValueType.setValue(right, 2);
-        testValueType.setValue(testValueType.getRight(testValueType.getAllocRight(testValueType.getAllocRight(testValueType.getAllocRight(right)))), 99999);
+        testValueType.setValue(testValueType.getAllocRight(testValueType.getAllocRight(testValueType.getAllocRight(testValueType.getAllocRight(right)))), 99999);
         testValueType.getValue(address);
         testValueType.getValue(testValueType.getLeft(address));
         testValueType.getValue(testValueType.getRight(address));
@@ -92,31 +95,31 @@ public class ASTBenchmark {
 
     }
 
-    @Benchmark
-    public void testValueObject() throws Exception {
-        byteStore.end();
-        provider.Free();
-        TestValueObject root = provider.New();
-        int address = root.getThisAddress();
-        root.setValue('+');
-        TestValueObject left = provider.New();
-        root.setLeft(left);
-        left.setValue(1);
-        TestValueObject right = root.getAllocRight();
-        right.setValue(2);
-        root.getRight().getValue();
-        right.getAllocRight().getAllocRight().getAllocRight().getAllocRight().setValue(99999);
-        provider.Free();
-        //  System.out.println( byteStore.toString());
-        root = null;
-        root = provider.New(address);
-        root.getValue();
-        root.getLeft().getValue();
-        root.getRight().getValue();
-        root.getRight().getRight().getRight().getRight().getRight().getValue();
-    }
+//    @Benchmark
+//    public void testValueObject() throws Exception {
+//        byteStore.end();
+//        //provider.Free();
+//       // TestValueObject root = provider.New();
+//        int address = root.getThisAddress();
+//        root.setValue('+');
+//        TestValueObject left = provider.New();
+//        root.setLeft(left);
+//        left.setValue(1);
+//        TestValueObject right = root.getAllocRightIfNull();
+//        right.setValue(2);
+//        root.getRight().getValue();
+//        right.getAllocRightIfNull().getAllocRightIfNull().getAllocRightIfNull().getAllocRightIfNull().setValue(99999);
+//        provider.Free();
+//        //  System.out.println( byteStore.toString());
+//        root = null;
+//        root = provider.New(address);
+//        root.getValue();
+//        root.getLeft().getValue();
+//        root.getRight().getValue();
+//        root.getRight().getRight().getRight().getRight().getRight().getValue();
+    //   }
 
-    @Benchmark
+    //  @Benchmark
 
     public void oldValueType() throws Exception {
         byteStore.end();
@@ -137,7 +140,7 @@ public class ASTBenchmark {
         oldValueType.getRight().getRight().getRight().getRight().getRight().getValue();
     }
 
-    @Benchmark
+    // @Benchmark
     public void staticValueType() throws Exception {
         byteStore.end();
         int address = byteStore.malloc(12);
@@ -151,6 +154,22 @@ public class ASTBenchmark {
         getValue(getLeft(address));
         getValue(getRight(address));
         getValue(getRight(getRight(getRight(getRight(right)))));
+    }
+
+    Exception exception = new Exception("lll");
+
+    public void except() throws Exception {
+        throw exception;
+    }
+
+    @Benchmark
+    public void catchRun() throws Exception {
+        try {
+            except();
+        } catch (Exception e) {
+
+        }
+
     }
 
 }

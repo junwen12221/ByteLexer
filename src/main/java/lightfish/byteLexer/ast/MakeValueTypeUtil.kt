@@ -45,7 +45,7 @@
 //            setMethodList.add(setMethod)
 //            initMethodList.add(String.format("set%s(thisAddress,0);", name))
 //            if (!method.returnType.isPrimitive) {
-//                refMethodList.add(String.format("public  int getAlloc%s(int thisAddress) {return byteStore.getRef(thisAddress+%s,%s.SIZE);}", getNormalizeVarName(name), field, className))
+//                refMethodList.add(String.format("public  int getAlloc%s(int thisAddress) {return byteStore.getRefIfNull(thisAddress+%s,%s.SIZE);}", getNormalizeVarName(name), field, className))
 //            }
 //            size += getSize(method.returnType.name)
 //        }

@@ -39,7 +39,7 @@ fun makeValueType(packageName:String,className: String, methods: Array<Method>):
         setMethodList.add(setMethod)
         initMethodList.add("set${name}(thisAddress,0);\n")
         if (!method.returnType.isPrimitive) {
-            refMethodList.add("public  int getAlloc${getNormalizeVarName(name)}(int thisAddress) {return byteStore.getRef(thisAddress+${field},${className}ValueType.SIZE);}\n")
+            refMethodList.add("public  int getAlloc${getNormalizeVarName(name)}(int thisAddress) {return byteStore.getRefIfNull(thisAddress+${field},${className}ValueType.SIZE);}\n")
         }
         size += getSize(method.returnType.name)
     }
